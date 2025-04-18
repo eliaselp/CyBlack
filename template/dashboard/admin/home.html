@@ -1,0 +1,235 @@
+{% extends 'dashboard/admin/base_admin.html' %}
+
+
+{% block contenido %}
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Stat Cards -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Total URL registradas</p>
+                <p class="text-2xl font-semibold mt-1 dark:text-white">12,543</p>
+            </div>
+            <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-blue-600 dark:text-blue-400">
+                <i data-lucide="link" class="w-6 h-6"></i>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Intentos de acceso bloqueados</p>
+                <p class="text-2xl font-semibold mt-1 dark:text-white">2,543</p>
+            </div>
+            <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-blue-600 dark:text-blue-400">
+                <i data-lucide="shield-x" class="stat-icon red"></i>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Sistemas de Detección</p>
+                <p class="text-2xl font-semibold mt-1 dark:text-white">543</p>
+            </div>
+            <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-blue-600 dark:text-blue-400">
+                <i data-lucide="brain-circuit" class="stat-icon green"></i>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Sistemas de Monitoreo</p>
+                <p class="text-2xl font-semibold mt-1 dark:text-white">543</p>
+            </div>
+            <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-blue-600 dark:text-blue-400">
+                <i data-lucide="network" class="stat-icon purple"></i>
+            </div>
+        </div>
+        <!-- Add more stat cards here -->
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 class="text-lg font-medium mb-6 dark:text-gray-200">Tendencias en Detección de Amenazas</h3>
+            <div class="h-64" id="threatChart"></div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 class="text-lg font-medium mb-6 dark:text-gray-200">Estadísticas de monitoreo</h3>
+            <div class="h-64" id="accessChart"></div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 class="text-lg font-medium mb-6 dark:text-gray-200">Impacto Legal</h3>
+            <div class="h-64" id="legalImpactChart"></div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 class="text-lg font-medium mb-6 dark:text-gray-200">Clasificacion de URL</h3>
+            <div class="h-64" id="cyberThreatsChart"></div>
+        </div>
+    </div>
+
+    
+{% endblock contenido %}
+
+
+
+{% block javascript %}
+<script>
+    // Chart Data
+    const threatData = [
+        { name: 'Jan', threats: 65 },
+        { name: 'Feb', threats: 59 },
+        { name: 'Mar', threats: 80 },
+        { name: 'Apr', threats: 81 },
+        { name: 'May', threats: 56 },
+        { name: 'Jun', threats: 55 },
+        { name: 'Jul', threats: 40 }
+    ];
+
+    const accessData = [
+        { name: 'Jan', blocked: 400, allowed: 240 },
+        { name: 'Feb', blocked: 300, allowed: 139 },
+        { name: 'Mar', blocked: 200, allowed: 980 },
+        { name: 'Apr', blocked: 278, allowed: 390 },
+        { name: 'May', blocked: 189, allowed: 480 },
+        { name: 'Jun', blocked: 239, allowed: 380 },
+        { name: 'Jul', blocked: 349, allowed: 430 }
+    ];
+
+    // Initialize Charts
+    const { LineChart, Line, BarChart, Bar,  XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area, ResponsiveContainer,Legend, LabelList} = Recharts;
+    
+    // Threat Detection Chart
+    const threatChart = React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+        React.createElement(LineChart, { data: threatData },
+            React.createElement(CartesianGrid, { strokeDasharray: '3 3' }),
+            React.createElement(XAxis, { dataKey: 'name' }),
+            React.createElement(YAxis),
+            React.createElement(Tooltip),
+            React.createElement(Line, {
+                type: 'monotone',
+                dataKey: 'threats',
+                stroke: '#3B82F6',
+                strokeWidth: 2
+            })
+        )
+    );
+
+    // Access Statistics Chart
+    const accessChart = React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+        React.createElement(AreaChart, { data: accessData },
+            React.createElement(CartesianGrid, { strokeDasharray: '3 3' }),
+            React.createElement(XAxis, { dataKey: 'name' }),
+            React.createElement(YAxis),
+            React.createElement(Tooltip),
+            React.createElement(Area, {
+                type: 'monotone',
+                dataKey: 'blocked',
+                stackId: '1',
+                stroke: '#EF4444',
+                fill: '#FEE2E2'
+            }),
+            React.createElement(Area, {
+                type: 'monotone',
+                dataKey: 'allowed',
+                stackId: '1',
+                stroke: '#10B981',
+                fill: '#D1FAE5'
+            })
+        )
+    );
+
+    // Render Charts
+    ReactDOM.render(threatChart, document.getElementById('threatChart'));
+    ReactDOM.render(accessChart, document.getElementById('accessChart'));
+
+
+
+
+
+    // Datos de Amenazas Cibernéticas (totales por tipo)
+    const cyberThreatsData = [
+        { name: 'Phishing', value: 180 },
+        { name: 'Malware', value: 155 },
+        { name: 'Exploits', value: 158 },
+        { name: 'Evación', value: 96 },
+        { name: 'Contenido ilícito', value: 56 }
+    ];
+
+    // Datos de Impacto Legal (totales por nivel)
+    const legalImpactData = [
+        { name: 'Grave', value: 79 },
+        { name: 'Moderado', value: 180 },
+        { name: 'Leve', value: 257 }
+    ];
+
+    
+    
+    // Gráfico de Amenazas Cibernéticas (vertical)
+    const cyberThreatsChart = React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+        React.createElement(BarChart, { 
+            data: cyberThreatsData,
+            layout: 'vertical', // Barras horizontales
+            margin: { top: 20, right: 30, left: 40, bottom: 20 }
+        },
+            React.createElement(CartesianGrid, { strokeDasharray: '3 3' }),
+            React.createElement(XAxis, { type: 'number' }),
+            React.createElement(YAxis, { 
+                dataKey: 'name', 
+                type: 'category',
+                width: 120
+            }),
+            React.createElement(Tooltip),
+            React.createElement(Bar, {
+                dataKey: 'value',
+                name: 'Casos',
+                fill: '#3B82F6',
+                barSize: 30
+            },
+                React.createElement(LabelList, { 
+                    dataKey: 'value', 
+                    position: 'right',
+                    formatter: (value) => `${value}`
+                })
+            )
+        )
+    );
+
+    // Gráfico de Impacto Legal (vertical)
+    const legalImpactChart = React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+        React.createElement(BarChart, { 
+            data: legalImpactData,
+            layout: 'vertical', // Barras horizontales
+            margin: { top: 20, right: 30, left: 40, bottom: 20 }
+        },
+            React.createElement(CartesianGrid, { strokeDasharray: '3 3' }),
+            React.createElement(XAxis, { type: 'number' }),
+            React.createElement(YAxis, { 
+                dataKey: 'name', 
+                type: 'category',
+                width: 100
+            }),
+            React.createElement(Tooltip),
+            React.createElement(Bar, {
+                dataKey: 'value',
+                name: 'Casos',
+                fill: '#10B981',
+                barSize: 30
+            },
+                React.createElement(LabelList, { 
+                    dataKey: 'value', 
+                    position: 'right',
+                    formatter: (value) => `${value} casos`
+                })
+            )
+        )
+    );
+
+    // Renderizar gráficos
+    ReactDOM.render(cyberThreatsChart, document.getElementById('cyberThreatsChart'));
+    ReactDOM.render(legalImpactChart, document.getElementById('legalImpactChart'));
+</script>
+
+
+{% endblock javascript %}
+    
+    

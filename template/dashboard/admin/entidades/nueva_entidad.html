@@ -1,0 +1,302 @@
+{% extends 'dashboard/admin/base_admin.html' %}
+
+{% block contenido %}
+    <!-- Contenedor Principal -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <!-- Header con título -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 dark:from-blue-800 dark:to-indigo-900 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="building-2" class="w-6 h-6 text-white"></i>
+                    <h1 class="text-xl font-bold text-white">Registro de Nueva Entidad</h1>
+                </div>
+                <a href="{% url 'entidades' %}" class="flex items-center gap-2 text-sm text-white hover:text-blue-100 transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Volver a entidades
+                </a>
+            </div>
+        </div>
+        
+        <!-- Formulario -->
+        <form class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6" action="{% url 'nueva_entidad' %}" method="POST">
+            {% csrf_token %}
+            
+            <!-- Sección 1: Datos de la Entidad -->
+            <div class="md:col-span-2">
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-3 mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                        <i data-lucide="briefcase" class="w-5 h-5 text-blue-500"></i>
+                        Información de la Entidad
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Complete todos los campos obligatorios (*)</p>
+                </div>
+            </div>
+
+            <!-- Nombre -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Nombre/Razón Social
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" name="nombre_entidad" required 
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                           value="{{back.nombre_entidad}}">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="building" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tipo de Entidad -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Tipo de Entidad
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <select required name="tipo_entidad" 
+                            class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none transition-all">
+                        <option value="" {% if not back %} selected {% endif %}>Seleccione...</option>
+                        <option value="Empresa Privada" {% if back.tipo_entidad == "Empresa Privada" %} selected {% endif %}>Empresa Privada</option>
+                        <option value="Organización sin fines de lucro"{% if back.tipo_entidad == "Organización sin fines de lucros" %} selected {% endif %}>Organización sin fines de lucro</option>
+                        <option value="Institución Pública" {% if back.tipo_entidad == "Institución Pública" %} selected {% endif %}>Institución Pública</option>
+                    </select>
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="list" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dirección Fiscal -->
+            <div class="space-y-2 md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Dirección Fiscal
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" value="{{back.direccion_fiscal}}" name="direccion_fiscal" required 
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="map-pin" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teléfono y Email -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Teléfono de Contacto
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="tel" name="telefono_entidad" value="{{back.telefono_entidad}}" required 
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="phone" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Email Institucional
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="email" name="email_institucional" value="{{back.email_institucional}}" required 
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="mail" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sitio Web y Sector -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Sitio Web
+                </label>
+                <div class="relative">
+                    <div class="flex rounded-lg shadow-sm">
+                        <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm">
+                            https://
+                        </span>
+                        <input type="url" name="sitio_web" value="{{back.sitio_web}}" 
+                               class="flex-1 min-w-0 block w-full px-3 py-2.5 rounded-r-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Sector Económico
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" name="sector_economico" value="{{back.sector_economico}}" required 
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="layers" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 2: Datos del Responsable -->
+            <div class="md:col-span-2">
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-3 mb-4 mt-6">
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                        <i data-lucide="user" class="w-5 h-5 text-purple-500"></i>
+                        Datos del Responsable
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Información de la persona a cargo</p>
+                </div>
+            </div>
+
+            <!-- Nombre Completo -->
+            <div class="space-y-2 md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Nombre Completo
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" name="nombre_responsable" value="{{back.nombre_responsable}}" required 
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cargo y Tipo de Documento -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Cargo/Puesto
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" name="cargo_puesto" value="{{back.cargo_puesto}}" required 
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="briefcase" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Tipo de Documento
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <select required name="tipo_documento_identidad" 
+                            class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none transition-all">
+                        <option value="" {% if not back %} selected {% endif %}>Seleccione...</option>
+                        <option value="Carnet de Identidad" {% if back.tipo_documento_identidad == "Carnet de Identidad" %} selected {% endif %}>
+                            Carnet de Identidad
+                        </option>
+                        <option value="Pasaporte" {% if back.tipo_documento_identidad == "Pasaporte" %} selected {% endif %}>
+                            Pasaporte
+                        </option>
+                    </select>
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="id-card" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Número de Documento y Contacto -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Número de Documento
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" name="numero_documento" required value="{{back.numero_documento}}"
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="file-text" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Email de Contacto
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="email" name="email_responsable" value="{{back.email_responsable}}" required 
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="mail" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teléfono y Usuario -->
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Teléfono
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="tel" name='telefono_responsable' value="{{back.telefono_responsable}}" required 
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="phone" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Nombre de usuario
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" name="username" value="{{back.username}}" required 
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="user-plus" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dirección -->
+            <div class="space-y-2 md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                    Dirección
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <input type="text" name="direccion_responsable" value="{{back.direccion_responsable}}" required 
+                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="home" class="w-5 h-5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="md:col-span-2 flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700 mt-4">
+                <a href="{% url 'entidades' %}" 
+                   class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg flex items-center gap-2 text-gray-800 dark:text-gray-200 font-medium transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 font-medium shadow-md hover:shadow-lg transition-all">
+                    <i data-lucide="save" class="w-5 h-5"></i>
+                    Guardar Entidad
+                </button>
+            </div>
+        </form>
+    </div>
+{% endblock contenido %}

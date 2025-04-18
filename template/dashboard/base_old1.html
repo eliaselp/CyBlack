@@ -1,0 +1,203 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyBlack - Security Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/styles_dashboard.css' %}">
+    <!-- Lucide Icons -->
+    <script src="{% static 'js/lucide.min.js' %}"></script>
+    <!-- ReCharts Dependencies -->
+    <script src="{% static 'js/react.production.min.js' %}"></script>
+    <script src="{% static 'js/react-dom.production.min.js' %}"></script>
+    <script src="{% static 'js/prop-types.min.js' %}"></script>
+    <script src="{% static 'js/Recharts.js' %}"></script>
+</head>
+
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i data-lucide="shield" class="logo-icon"></i>
+                <h1>CyBlack</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="menu-item">
+                    <button class="menu-button">
+                        <i data-lucide="shield"></i>
+                        <span>Dashboard</span>
+                    </button>
+                </div>
+                <div class="menu-item">
+                    <button class="menu-button">
+                        <i data-lucide="key"></i>
+                        <span>Credential Management</span>
+                        <i data-lucide="chevron-down" class="chevron"></i>
+                    </button>
+                    <div class="submenu">
+                        <a href="#" class="submenu-item">API Keys</a>
+                        <a href="#" class="submenu-item">Access Tokens</a>
+                        <a href="#" class="submenu-item">Certificates</a>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <button class="menu-button">
+                        <i data-lucide="alert-triangle"></i>
+                        <span>Blacklist Management</span>
+                        <i data-lucide="chevron-down" class="chevron"></i>
+                    </button>
+                    <div class="submenu">
+                        <a href="#" class="submenu-item">URL Database</a>
+                        <a href="#" class="submenu-item">Domain Rules</a>
+                        <a href="#" class="submenu-item">Import/Export</a>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <button class="menu-button">
+                        <i data-lucide="history"></i>
+                        <span>Access Logs</span>
+                    </button>
+                </div>
+                <div class="menu-item">
+                    <button class="menu-button">
+                        <i data-lucide="link-2"></i>
+                        <span>URL Analysis</span>
+                    </button>
+                </div>
+                <div class="menu-item">
+                    <button class="menu-button">
+                        <i data-lucide="users"></i>
+                        <span>User Management</span>
+                    </button>
+                </div>
+                <div class="menu-item">
+                    <button class="menu-button">
+                        <i data-lucide="database"></i>
+                        <span>Data Management</span>
+                    </button>
+                </div>
+                <div class="menu-item">
+                    <button class="menu-button">
+                        <i data-lucide="settings"></i>
+                        <span>Settings</span>
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Navbar -->
+            <nav class="navbar">
+                <div class="search-container">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text" placeholder="Search URLs, domains, or reports..." class="search-input">
+                </div>
+                <div class="nav-right">
+                    <button class="notification-btn">
+                        <i data-lucide="bell"></i>
+                        <span class="notification-dot"></span>
+                    </button>
+                    <div class="user-info">
+                        <div class="user-details">
+                            <p class="user-name">John Doe</p>
+                            <p class="user-role">Security Admin</p>
+                        </div>
+                        <button class="user-avatar">
+                            <i data-lucide="user"></i>
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Dashboard Content -->
+            <main class="dashboard">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div>
+                            <p class="stat-label">Total URLs Tracked</p>
+                            <p class="stat-value">12,543</p>
+                        </div>
+                        <i data-lucide="link" class="stat-icon blue"></i>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <p class="stat-label">Malicious URLs</p>
+                            <p class="stat-value">1,234</p>
+                        </div>
+                        <i data-lucide="alert-triangle" class="stat-icon red"></i>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <p class="stat-label">Access Attempts Blocked</p>
+                            <p class="stat-value">8,765</p>
+                        </div>
+                        <i data-lucide="shield" class="stat-icon green"></i>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <p class="stat-label">Active Users</p>
+                            <p class="stat-value">156</p>
+                        </div>
+                        <i data-lucide="shield" class="stat-icon purple"></i>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Threat Detection Trends</h3>
+                        <div id="threatChart" class="chart"></div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Access Statistics</h3>
+                        <div id="accessChart" class="chart"></div>
+                    </div>
+                </div>
+
+                <!-- URLs Table -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Recent Malicious URLs</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>URL</th>
+                                    <th>Classification</th>
+                                    <th>Type</th>
+                                    <th>Detected At</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="urlTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Modal -->
+            <div id="urlModal" class="modal">
+                <div class="modal-content">
+                    <button class="modal-close">
+                        <i data-lucide="x"></i>
+                    </button>
+                    <div class="modal-body">
+                        <h3>URL Details</h3>
+                        <div id="modalDetails" class="modal-details"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/script_dashboard.js' %}" defer></script>
+</body>
+
+</html>
