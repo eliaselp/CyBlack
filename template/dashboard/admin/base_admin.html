@@ -1,0 +1,46 @@
+{% extends 'dashboard/base.html' %}
+
+{% block sidebar %}
+<div class="menu-item">
+    <a href="{% url 'redirect' %}">
+        <button
+            class="w-full flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-200">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+            <span class="flex-1 text-left">Dashboard</span>
+        </button>
+    </a>
+</div>
+<div class="menu-item">
+    <a href="{% url 'entidades' %}">
+        <button class="w-full flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-200">
+            <i data-lucide="building" class="w-5 h-5"></i>
+            <span class="flex-1 text-left">Entidades</span>
+        </button>
+    </a>
+</div>
+<div class="menu-item">
+    <a href="{% url 'credenciales' %}">
+        <button class="w-full flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-200">
+            <i data-lucide="key" class="w-5 h-5"></i>
+            <span class="flex-1 text-left">Credenciales</span>
+        </button>
+    </a>
+</div>
+<div class="menu-item">
+    <a href="{% url 'lista_negra' %}">
+        <button class="w-full flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-200">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+            <span class="flex-1 text-left">Lista Negra</span>
+        </button>
+    </a>
+</div>
+
+<div class="menu-item">
+    <a href="{% url 'ajustes' %}">
+        <button class="w-full flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-200">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+            <span class="flex-1 text-left">Ajustes</span>
+        </button>
+    </a>
+</div>
+{% endblock sidebar %}

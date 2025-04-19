@@ -1,0 +1,8 @@
+django
+django_session_timeout
+cryptography
+eciespy
+django-user-agents 
+pyyaml 
+ua-parser 
+user-agents
