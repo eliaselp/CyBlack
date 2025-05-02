@@ -1,0 +1,349 @@
+{% extends 'dashboard/admin/base_admin.html' %}
+
+{% block contenido %}
+    <!-- Configuración del Usuario -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Tarjeta de Cambio de Contraseña -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium dark:text-gray-200">Cambiar Contraseña</h3>
+                <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-blue-600 dark:text-blue-400">
+                    <i data-lucide="key" class="w-6 h-6"></i>
+                </div>
+            </div>
+            <form class="space-y-4" action="{% url 'cambiar_password' %}" method="POST">
+                {% csrf_token %}
+                <div>
+                    <label for="current-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña actual</label>
+                    <input type="password" value="{{back.password_actual}}" name="password_actual" id="current-password" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                </div>
+                <div>
+                    <label for="new-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nueva contraseña</label>
+                    <input type="password" value="{{back.new_password}}" name="new_password" id="new_password" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                </div>
+                <div>
+                    <label for="confirm-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmar nueva contraseña</label>
+                    <input type="password" value="{{back.confirm_password}}" name="confirm_password" id="confirm_password" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                </div>
+                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Actualizar contraseña
+                </button>
+            </form>
+        </div>
+
+        <!-- Tarjeta de Autenticación en Dos Pasos -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium dark:text-gray-200">Autenticación en Dos Pasos (2FA)</h3>
+                <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-blue-600 dark:text-blue-400">
+                    <i data-lucide="shield" class="w-6 h-6"></i>
+                </div>
+            </div>
+            
+            <!-- Contenido inicial (estado) -->
+            <div id="initial-content" class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Estado actual:</span>
+                    {% if mfa_activo %}
+                        <span class="px-4 py-1 text-xs font-semibold rounded-full bg-green-300 text-green-900 dark:bg-green-900 dark:text-green-100">
+                            Activo
+                        </span>
+                    {% else %}
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-100">
+                            Desactivado
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    La autenticación en dos pasos añade una capa adicional de seguridad a tu cuenta.
+                </p>
+                
+                <div class="space-y-2">
+                    {% if not mfa_activo %}
+                        <button id="setup-2fa-btn" type="button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Configurar 2FA
+                        </button>
+                    {% else %}
+                        <button id="remove-2fa-btn" type="button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            Desactivar 2FA
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Estado de carga (inicialmente oculto) -->
+            <div id="loading-content" class="hidden text-center py-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Procesando solicitud...</p>
+            </div>
+            
+            <!-- Contenido del QR y validación (inicialmente oculto) -->
+            <div id="qr-content" class="hidden space-y-4">
+                <div class="text-center">
+                    <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">Escanea este código QR con Google Authenticator:</p>
+                    <div class="bg-white p-2 rounded-lg inline-block">
+                        <img id="qr-image" src="" alt="QR Code" class="mx-auto w-48 h-48">
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Si no puedes escanear el QR, introduce este código manualmente: <span id="secret-key-text" class="font-mono"></span></p>
+                </div>
+                
+                <form id="verify-2fa-form" method="post" action="">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="otp-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Código de verificación</label>
+                        <input type="text" id="otp-code" name="otp_code" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="123456" required>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button id="cancel-2fa-btn" type="button" class="flex-1 py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Cancelar
+                        </button>
+                        <button id="verify-2fa-btn" type="submit" class="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Validar
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Estado de carga para validación -->
+                <div id="verify-loading" class="hidden text-center py-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Verificando código...</p>
+                </div>
+            </div>
+            
+            <!-- Modal para validación al eliminar/actualizar (inicialmente oculto) -->
+            <div id="verify-modal" class="hidden space-y-4">
+                <div class="text-center">
+                    <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">Introduce tu código 2FA actual para continuar:</p>
+                </div>
+                
+                <form id="verify-current-2fa-form" method="post" action="">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="current-otp-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Código actual</label>
+                        <input type="text" id="current-otp-code" name="current_otp_code" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="123456" required>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button id="cancel-verify-btn" type="button" class="flex-1 py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Cancelar
+                        </button>
+                        <button id="submit-verify-btn" type="submit" class="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Verificar
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="verify-modal-loading" class="hidden text-center py-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Verificando código...</p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Elementos principales
+                const initialContent = document.getElementById('initial-content');
+                const loadingContent = document.getElementById('loading-content');
+                const qrContent = document.getElementById('qr-content');
+                const verifyModal = document.getElementById('verify-modal');
+                
+                // Botones de acción
+                const setupBtn = document.getElementById('setup-2fa-btn');
+                const removeBtn = document.getElementById('remove-2fa-btn');
+                
+                // Formularios
+                const verifyForm = document.getElementById('verify-2fa-form');
+                const verifyCurrentForm = document.getElementById('verify-current-2fa-form');
+                
+                // Variables de estado
+                let currentAction = null; // 'setup', 'remove'
+                
+                // Configurar 2FA
+                if (setupBtn) {
+                    setupBtn.addEventListener('click', function() {
+                        currentAction = 'setup';
+                        showLoading();
+                        setTimeout(function() {
+                            fetch("{% url 'get_qr_2fa' %}", {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(handleResponse)
+                            .catch(handleError);
+                        }, 2000); // 2000 milisegundos = 2 segundos
+                    });
+                }
+                
+                
+                // Eliminar 2FA
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', function() {
+                        currentAction = 'remove';
+                        showVerifyModal("{% url 'remove_2fa' %}");
+                    });
+                }
+                
+                // Cancelar acciones
+                document.getElementById('cancel-2fa-btn')?.addEventListener('click', resetUI);
+                document.getElementById('cancel-verify-btn')?.addEventListener('click', resetUI);
+                
+                
+                // Funciones auxiliares
+                function showLoading() {
+                    hideElement(initialContent);
+                    hideElement(qrContent);
+                    hideElement(verifyModal);
+                    showElement(loadingContent);
+                }
+                
+                function showQR(data) {
+                    hideElement(loadingContent);
+                    hideElement(verifyModal);
+                    
+                    document.getElementById('qr-image').src = data.qr_url;
+                    if (data.secret_key) {
+                        document.getElementById('secret-key-text').textContent = data.secret_key;
+                    }
+                    
+                    // Configurar el formulario según la acción
+                    if (currentAction === 'setup') {
+                        verifyForm.action = "{% url 'setup_2fa' %}";
+                    }
+
+                    showElement(qrContent);
+                }
+                
+                function showVerifyModal(verifyUrl) {
+                    hideElement(initialContent);
+                    verifyCurrentForm.action = verifyUrl;
+                    showElement(verifyModal);
+                }
+                
+                function resetUI() {
+                    hideElement(loadingContent);
+                    hideElement(qrContent);
+                    hideElement(verifyModal);
+                    showElement(initialContent);
+                    
+                    // Resetear formularios
+                    verifyForm.reset();
+                    verifyCurrentForm.reset();
+                    
+                    // Mostrar botones de nuevo
+                    showElement(verifyForm.querySelector('button[type="submit"]'));
+                    showElement(verifyCurrentForm.querySelector('button[type="submit"]'));
+                    
+                    // Ocultar loadings
+                    hideElement(document.getElementById('verify-loading'));
+                    hideElement(document.getElementById('verify-modal-loading'));
+                }
+                
+                function handleResponse(response) {
+                    return response.json().then(data => {
+                        if (data.success) {
+                            showQR(data);
+                        } else {
+                            resetUI();
+                            alert(data.error || 'Error en la operación');
+                        }
+                    });
+                }
+                
+                function handleError(error) {
+                    console.error('Error:', error);
+                    resetUI();
+                    alert('Error en la conexión');
+                }
+                
+                function submitForm(form, onSuccess) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const loadingElement = form.nextElementSibling?.id.includes('loading') ? 
+                        form.nextElementSibling : 
+                        document.getElementById('verify-loading');
+                    
+                    hideElement(submitBtn);
+                    showElement(loadingElement);
+                    
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (typeof onSuccess === 'function') {
+                                onSuccess();
+                            }
+                        } else {
+                            resetUI();
+                            alert(data.error || 'Operación fallida');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        resetUI();
+                        alert('Error en la conexión');
+                    });
+                }
+                
+                function showElement(element) {
+                    if (element) element.classList.remove('hidden');
+                }
+                
+                function hideElement(element) {
+                    if (element) element.classList.add('hidden');
+                }
+            });
+        </script>
+
+
+
+        
+        <!-- Tarjeta de Sesiomes Activas -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium dark:text-gray-200">Sesiones Activas</h3>
+                <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-blue-600 dark:text-blue-400">
+                    <i data-lucide="monitor" class="w-6 h-6"></i>
+                </div>
+            </div>
+            <div class="space-y-4">
+                {% for sesion in sesiones %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div>
+                            <p class="text-sm font-medium dark:text-gray-200">{{sesion.dispositivo}}</p>
+                            <p class="text-sm font-medium dark:text-gray-200">{{ sesion.navegador }}</p>
+                            <p class="text-sm font-medium dark:text-gray-200">{{ sesion.so }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ sesion.ip }} - {{sesion.login_time}}</p>
+                        </div>
+                        
+                        {% if sesion_actual != sesion.session_key%}
+                            <form action="{% url 'remote_logout' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="session_key" value='{{sesion.session_key}}'>
+                                <button type='submit' class="text-red-500 hover:text-red-700">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <form action="{% url 'cerrar_todas_las_sesiones' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        Cerrar todas las sesiones
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock contenido %}
