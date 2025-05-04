@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -127,6 +127,17 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static',]
 STATIC_ROOT = BASE_DIR / 'colectstatics'
+
+# settings.py
+
+# Configuración para archivos multimedia
+MEDIA_URL = '/media/'  # URL base para servir archivos subidos
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Ruta absoluta al directorio de almacenamiento
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 209715200  # 200MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 209715200  # 200MB
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
