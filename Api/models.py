@@ -15,7 +15,7 @@ class Credencial(models.Model):
     tipo_sistema = models.TextField(null=True, blank=False)
     public_key = models.TextField(null=False, unique=True)
     private_key = models.TextField(null=False, unique=True)
-    ntw_sec_pub = models.TextField(null=True, blank=True)
+    ntw_sec_pv = models.TextField(null=True, blank=True)
     ultima_actualizacion = models.DateTimeField(auto_now=True)
 
 

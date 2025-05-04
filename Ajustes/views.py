@@ -21,10 +21,16 @@ class Ajustes(View):
             sesiones = Ajustes.obtener_sesiones_activas(request)
             if Error and request.POST:
                 back = request.POST
+
+            base = None
+            if request.user.is_staff:
+                base = 'dashboard/admin/base_admin.html'
+            
             return render(request,'dashboard/Ajustes/ajustes.html',{
                 'Error':Error,'Success':Success,'back':back,
                 'sesiones':sesiones,'sesion_actual':request.session.session_key,
                 'mfa_activo':not request.user.secret_mfa in [None,''],
+                'base':base
             })
         else:
             return Index_views.redirigir_usuario(request=request)
@@ -33,9 +39,14 @@ class Ajustes(View):
     def get(self,request:HttpRequest):
         if request.user.is_authenticated:
             sesiones = Ajustes.obtener_sesiones_activas(request)
+            base = None
+            if request.user.is_staff:
+                base = 'dashboard/admin/base_admin.html'
+            
             return render(request,'dashboard/Ajustes/ajustes.html',{
                 'sesiones':sesiones,'sesion_actual':request.session.session_key,
                 'mfa_activo':not request.user.secret_mfa in [None,''],
+                'base':base
             })
         else:
             return Index_views.redirigir_usuario(request=request)
