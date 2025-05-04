@@ -1,56 +1,266 @@
 {% extends 'dashboard/admin/base_admin.html' %}
 
-
 {% block contenido %}
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-lg font-medium dark:text-gray-200">Recent Malicious URLs</h3>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                    <th
-                        class="px-6 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-200">
-                        URL</th>
-                    <th
-                        class="px-6 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-200">
-                        Classification</th>
-                    <th
-                        class="px-6 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-200">
-                        Type</th>
-                    <th
-                        class="px-6 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-200">
-                        Detected At</th>
-                    <th
-                        class="px-6 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-200">
-                        Status</th>
-                    <th
-                        class="px-6 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-200">
-                        Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="border-t border-gray-200 dark:border-gray-700">
-                    <td class="px-6 py-4 text-sm dark:text-gray-300">https://malicious-example.com</td>
-                    <td class="px-6 py-4 text-sm dark:text-gray-300">Phishing</td>
-                    <td class="px-6 py-4 text-sm dark:text-gray-300">Financial</td>
-                    <td class="px-6 py-4 text-sm dark:text-gray-300">2024-03-10 14:30</td>
-                    <td class="px-6 py-4 text-sm">
-                        <span
-                            class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-full text-xs">
-                            Active
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-sm">
-                        <button
-                            class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">View
-                            Details</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+    {% if not urls %}
+        <!-- Filtros Mejorados (solo se muestran si hay URLs) -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            <div class="max-w-7xl mx-auto">
+                <h3 class="text-lg font-semibold dark:text-gray-200 mb-6 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                    </svg>
+                    Filtros Avanzados
+                </h3>
+                <form method="get" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <!-- Filtros Nuevos y Mejorados -->
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium dark:text-gray-300">Protocolo</label>
+                        <select name="protocolo" class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todos</option>
+                            {% for value, label in PROTOCOLO_CHOICES %}
+                                <option value="{{ value }}" {% if request.GET.protocolo == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium dark:text-gray-300">Objetivo</label>
+                        <select name="objetivo" class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todos</option>
+                            {% for value, label in OBJETIVO_CHOICES %}
+                                <option value="{{ value }}" {% if request.GET.objetivo == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium dark:text-gray-300">Método Ataque</label>
+                        <select name="metodo" class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todos</option>
+                            {% for value, label in METODO_CHOICES %}
+                                <option value="{{ value }}" {% if request.GET.metodo == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium dark:text-gray-300">Impacto Legal</label>
+                        <select name="impacto_legal" class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todos</option>
+                            {% for value, label in IMPACTO_LEGAL_CHOICES %}
+                                <option value="{{ value }}" {% if request.GET.impacto_legal == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium dark:text-gray-300">Método Detección</label>
+                        <select name="metodo_deteccion" class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500">
+                            <option value="">Todos</option>
+                            {% for value, label in METODO_DETECCION_CHOICES %}
+                                <option value="{{ value }}" {% if request.GET.metodo_deteccion == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="lg:col-span-3">
+                        <label class="block text-sm font-medium dark:text-gray-300">Búsqueda General</label>
+                        <div class="relative">
+                            <input type="text" name="q" placeholder="Buscar URL, IP, descripción..." 
+                                   class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500"
+                                   value="{{ request.GET.q }}">
+                            <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 flex items-end justify-end space-x-3">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                            </svg>
+                            Aplicar Filtros
+                        </button>
+                        <a href="{% url 'lista_negra' %}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition-all flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Limpiar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tabla Mejorada -->
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Protocolo</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">URL</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">IP</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Puerto</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Objetivo</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Método</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Impacto</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Último Acceso</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Accesos</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for url in urls %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
+                        <td class="px-6 py-4 text-sm font-medium text-gray-800 dark:text-gray-200">{{ url.get_protocolo_display }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-mono break-all max-w-xs">{{ url.url }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ url.ip }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ url.puerto }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ url.get_objetivo_display }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
+                            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-full text-xs">{{ url.get_metodo_display }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            {% if url.impacto_legal == 'GRAVE' %}
+                                <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-xs">Grave</span>
+                            {% elif url.impacto_legal == 'MODERADO' %}
+                                <span class="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-100 rounded-full text-xs">Moderado</span>
+                            {% else %}
+                                <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 rounded-full text-xs">Leve</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ url.ultima_acceso|date:"Y-m-d H:i" }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium">{{ url.total_accesos }}</td>
+                        <td class="px-6 py-4 text-sm">
+                            <button onclick="toggleDetails('details-{{ url.id }}')" 
+                                    class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center group">
+                                <span class="mr-1">Detalles</span>
+                                <svg class="w-4 h-4 transform transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                    
+                    <!-- Sección de Detalles Mejorada -->
+                    <tr id="details-{{ url.id }}" class="hidden bg-gray-50 dark:bg-gray-900">
+                        <td colspan="10" class="px-6 py-4">
+                            <div class="space-y-6 max-w-7xl mx-auto">
+                                <!-- Descripción -->
+                                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                    <h4 class="font-semibold dark:text-gray-200 mb-3 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Descripción
+                                    </h4>
+                                    <p class="dark:text-gray-300 text-sm leading-relaxed">{{ url.descripcion|default:"Sin descripción" }}</p>
+                                </div>
+                                
+                                <!-- Accesos por Entidad -->
+                                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                    <h4 class="font-semibold dark:text-gray-200 mb-4 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                        </svg>
+                                        Accesos por Entidad
+                                    </h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {% for acceso in url.acceso_set.all %}
+                                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                                                <div class="flex justify-between items-center">
+                                                    <div>
+                                                        <p class="text-sm font-medium dark:text-gray-300">{{ acceso.entidad.nombre }}</p>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ acceso.fecha|date:"Y-m-d H:i" }}</p>
+                                                    </div>
+                                                    <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full">{{ acceso.entidad.tipo }}</span>
+                                                </div>
+                                            </div>
+                                        {% empty %}
+                                            <p class="dark:text-gray-400 text-sm">No hay registros de acceso</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Evidencias -->
+                                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                                    <h4 class="font-semibold dark:text-gray-200 mb-4 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        Evidencias Técnicas
+                                    </h4>
+                                    <div class="space-y-3">
+                                        {% for evidencia in url.evidencias.all %}
+                                            <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                                <div class="flex items-center space-x-4">
+                                                    <div class="flex-shrink-0">
+                                                        {% if evidencia.archivo %}
+                                                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                            </svg>
+                                                        {% else %}
+                                                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                            </svg>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-sm font-medium dark:text-gray-300">{{ evidencia.get_metodo_deteccion_display }}</p>
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ evidencia.fecha_creacion|date:"Y-m-d H:i" }}</p>
+                                                    </div>
+                                                </div>
+                                                {% if evidencia.archivo %}
+                                                    <a href="{{ evidencia.archivo.url }}" 
+                                                       download
+                                                       class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm flex items-center transition-colors">
+                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                                        </svg>
+                                                        Descargar
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        {% empty %}
+                                            <p class="dark:text-gray-400 text-sm">No hay evidencias registradas</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <!-- Mensaje cuando no hay URLs -->
+        <div class="p-12 text-center">
+            <div class="max-w-md mx-auto">
+                <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="mt-2 text-lg font-medium dark:text-gray-200">No se encontraron direcciones URL</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    No se han encontrado direcciones URL maliciosas en el sistema. 
+                    {% if not filtro %}
+                        <br>
+                        Por favor, revise que los filtros sean correctos.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    {% endif %}
 </div>
+
+<script>
+function toggleDetails(elementId) {
+    const detailsRow = document.getElementById(elementId);
+    detailsRow.classList.toggle('hidden');
+    const icon = detailsRow.previousElementSibling.querySelector('svg');
+    icon.classList.toggle('rotate-180');
+}
+</script>
 {% endblock contenido %}
-    
