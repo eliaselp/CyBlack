@@ -28,15 +28,6 @@ IMPACTO_LEGAL_CHOICES = [
 PROTOCOLO_CHOICES = [
     ('HTTP', 'HTTP'),
     ('HTTPS', 'HTTPS'),
-    ('FTP', 'FTP'),
-    ('SFTP', 'SFTP'),
-    ('SMTP', 'SMTP'),
-    ('IMAP', 'IMAP'),
-    ('POP3', 'POP3'),
-    ('TELNET', 'Telnet'),
-    ('SSH', 'SSH'),
-    ('RDP', 'RDP'),
-    ('WEBDAV', 'WebDAV')
 ]
 
 class URL_Maliciosa(models.Model):
@@ -80,9 +71,9 @@ class URL_Maliciosa(models.Model):
 
 
 class Acceso(models.Model):
-    url = models.ForeignKey(URL_Maliciosa, on_delete=models.CASCADE)
+    url = models.ForeignKey(URL_Maliciosa, on_delete=models.CASCADE,related_name='accesos')
     fecha = models.DateTimeField(auto_now_add=True)
-    entidad = models.ForeignKey(Admin_models.Entidad, on_delete=models.SET_NULL, null=True)
+    entidad = models.ForeignKey(Admin_models.Entidad, on_delete=models.SET_NULL, null=True, related_name='accesos')
 
     def __str__(self):
         return f"Acceso a {self.url} por {self.entidad}"
@@ -116,7 +107,7 @@ class Evidencia(models.Model):
         max_length=20,
         choices=METODO_DETECCION_CHOICES
     )
-    
+    entidad = models.ForeignKey(Admin_models.Entidad, on_delete=models.SET_NULL, null=True, related_name='evidencias')    
     # Campos de evidencia
     descripcion = models.TextField(blank=True)
     archivo = models.FileField(

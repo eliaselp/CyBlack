@@ -10,10 +10,12 @@ class AuthAndMFAMiddleware:
         exempt_urls = [
             reverse('login'),
             reverse('mfa'),
-            reverse('logout')
+            reverse('logout'),
+            reverse('set_secure_net'),
+            reverse('add_url')
             # Añade aquí otras URLs públicas si es necesario
         ]
-
+        
         # Verificar si la URL actual está exenta
         if request.path in exempt_urls:
             return self.get_response(request)

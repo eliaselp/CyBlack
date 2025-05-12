@@ -6,8 +6,8 @@ import smtplib
 
 smtp_server = "smtp.gmail.com"
 smtp_port = 587
-smtp_username = "tradingLiranza@gmail.com"
-smtp_password = "gkqnjoscanyjcver"
+smtp_username = "cyblack.uci@gmail.com"
+smtp_password = "hhwctjxkfuhpzjmh"
 
 # Función para enviar correo electrónico
 def enviar_correo(email,Asunto,s):
