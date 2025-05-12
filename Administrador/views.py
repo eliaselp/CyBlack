@@ -7,7 +7,7 @@ from Api import models as Api_models
 from Api import utils
 from Index import views as Index_views
 from Index import correo
-
+from django.http import HttpRequest
 import re
 import uuid
 import secrets
@@ -42,7 +42,7 @@ class Entidades(View):
             })
         return Index_views.redirigir_usuario(request)
 
-    def get(self, request):
+    def get(self, request:HttpRequest):
         if request.user.is_authenticated and request.user.is_staff:
             return render(request, 'dashboard/admin/entidades/entidades.html',{
                 'entidades':Admin_models.Entidad.objects.all(),
@@ -795,6 +795,7 @@ Le informamos que las credenciales de acceso para el {credencial.tipo_sistema} h
 **Detalles de la configuración:**  
 - Entidad: {credencial.entidad_id.nombre_entidad}
 - Sistema: {credencial.tipo_sistema}
+- UID: {credencial.uid}
 - Fecha de registro: {timezone.localtime(credencial.ultima_actualizacion).strftime("%d/%m/%Y %H:%M:%S")}  
 
 **Archivos adjuntos:**  
