@@ -2,233 +2,242 @@
 
 {% block contenido %}
 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-    {% if not urls %}
-        <!-- Filtros Mejorados (solo se muestran si hay URLs) -->
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-            <div class="max-w-7xl mx-auto">
-                <h3 class="text-lg font-semibold dark:text-gray-200 mb-6 flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    {% if urls %}
+        <!-- Filtros Avanzados - Diseño Profesional con Soporte para Tema Claro/Oscuro -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                     </svg>
                     Filtros Avanzados
                 </h3>
-                <form method="get" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    <!-- Filtros Nuevos y Mejorados -->
-                    <div class="space-y-1">
-                        <label class="block text-sm font-medium dark:text-gray-300">Protocolo</label>
-                        <select name="protocolo" class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500">
-                            <option value="">Todos</option>
-                            {% for value, label in PROTOCOLO_CHOICES %}
-                                <option value="{{ value }}" {% if request.GET.protocolo == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Filtre las URLs maliciosas según múltiples criterios</p>
+            </div>
 
-                    <div class="space-y-1">
-                        <label class="block text-sm font-medium dark:text-gray-300">Objetivo</label>
-                        <select name="objetivo" class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500">
-                            <option value="">Todos</option>
-                            {% for value, label in OBJETIVO_CHOICES %}
-                                <option value="{{ value }}" {% if request.GET.objetivo == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="block text-sm font-medium dark:text-gray-300">Método Ataque</label>
-                        <select name="metodo" class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500">
-                            <option value="">Todos</option>
-                            {% for value, label in METODO_CHOICES %}
-                                <option value="{{ value }}" {% if request.GET.metodo == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="block text-sm font-medium dark:text-gray-300">Impacto Legal</label>
-                        <select name="impacto_legal" class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500">
-                            <option value="">Todos</option>
-                            {% for value, label in IMPACTO_LEGAL_CHOICES %}
-                                <option value="{{ value }}" {% if request.GET.impacto_legal == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="block text-sm font-medium dark:text-gray-300">Método Detección</label>
-                        <select name="metodo_deteccion" class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg px-3 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500">
-                            <option value="">Todos</option>
-                            {% for value, label in METODO_DETECCION_CHOICES %}
-                                <option value="{{ value }}" {% if request.GET.metodo_deteccion == value %}selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="lg:col-span-3">
-                        <label class="block text-sm font-medium dark:text-gray-300">Búsqueda General</label>
-                        <div class="relative">
-                            <input type="text" name="q" placeholder="Buscar URL, IP, descripción..." 
-                                   class="w-full dark:bg-gray-700 dark:text-gray-200 rounded-lg pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500"
-                                   value="{{ request.GET.q }}">
-                            <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
+            <form id="filtrosForm" class="space-y-4">
+                <!-- Búsqueda general -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="busquedaGeneral" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Búsqueda general</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
+                                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <input type="text" id="busquedaGeneral" name="busquedaGeneral" 
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500" 
+                                placeholder="URL, IP, descripción...">
                         </div>
                     </div>
+                    
+                    <!-- Filtros de URL -->
+                    <div>
+                        <label for="filtroProtocolo" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Protocolo</label>
+                        <select id="filtroProtocolo" name="protocolo" 
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <option value="">Todos los protocolos</option>
+                            {% for protocolo in PROTOCOLO_CHOICES %}
+                                <option value="{{ protocolo.0 }}">{{ protocolo.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="filtroPuerto" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Puerto</label>
+                        <input type="number" id="filtroPuerto" name="puerto" 
+                            class="mt-1 block w-full pl-3 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500" 
+                            placeholder="Ej: 80, 443">
+                    </div>
+                </div>
 
-                    <div class="lg:col-span-2 flex items-end justify-end space-x-3">
-                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-                            </svg>
-                            Aplicar Filtros
-                        </button>
-                        <a href="{% url 'lista_negra' %}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition-all flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Segunda fila de filtros -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="filtroObjetivo" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Objetivo</label>
+                        <select id="filtroObjetivo" name="objetivo" 
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <option value="">Todos los objetivos</option>
+                            {% for objetivo in OBJETIVO_CHOICES %}
+                                <option value="{{ objetivo.0 }}">{{ objetivo.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="filtroMetodo" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Método URL</label>
+                        <select id="filtroMetodo" name="metodo" 
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <option value="">Todos los métodos</option>
+                            {% for metodo in METODO_CHOICES %}
+                                <option value="{{ metodo.0 }}">{{ metodo.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="filtroImpacto" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Impacto Legal</label>
+                        <select id="filtroImpacto" name="impacto" 
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <option value="">Todos los impactos</option>
+                            {% for impacto in IMPACTO_LEGAL_CHOICES %}
+                                <option value="{{ impacto.0 }}">{{ impacto.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tercera fila de filtros -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="filtroMetodoDeteccion" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Método Detección</label>
+                        <select id="filtroMetodoDeteccion" name="metodo_deteccion" 
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <option value="">Todos los métodos</option>
+                            {% for metodo in METODO_DETECCION_CHOICES %}
+                                <option value="{{ metodo.0 }}">{{ metodo.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="filtroEntidad" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Entidad Reportante</label>
+                        <select id="filtroEntidad" name="entidad" 
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <option value="">Todas las entidades</option>
+                            {% for id,nombre in ENTIDADES_CHOICES  %}
+                                <option value="{{id}}">{{nombre}}</option>
+                            {% endfor %}
+                                
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="filtroFechaInicio" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Rango de Fechas</label>
+                        <div class="flex space-x-2">
+                            <input type="date" id="filtroFechaInicio" name="fecha_inicio" 
+                                class="mt-1 block w-full pl-3 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                            <span class="flex items-center text-gray-500 dark:text-gray-400">a</span>
+                            <input type="date" id="filtroFechaFin" name="fecha_fin" 
+                                class="mt-1 block w-full pl-3 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fila de botones -->
+                <div class="flex justify-between pt-2">
+                    <div class="flex space-x-2">
+                        <a href="{% url 'lista_negra' %}" type="button" 
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                             </svg>
-                            Limpiar
+                            Restablecer
                         </a>
+                        <button type="button" 
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Exportar
+                        </button>
                     </div>
-                </form>
-            </div>
+                    <button type="submit" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        </svg>
+                        Aplicar Filtros
+                    </button>
+                </div>
+            </form>
         </div>
 
-        <!-- Tabla Mejorada -->
+        <script>
+        
+
+        document.getElementById('filtrosForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Lógica para aplicar filtros
+            console.log('Filtros aplicados');
+        });
+        </script>
+        <!-- Tabla Simplificada -->
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Protocolo</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">URL</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">IP</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Puerto</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Objetivo</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Método</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Impacto</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Último Acceso</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Accesos</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"></th>
+                        <th class="w-24 px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Protocolo</th>
+                        <th class="min-w-[300px] px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">URL</th>
+                        <th class="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">IP</th>
+                        <th class="w-20 px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Puerto</th>
+                        <th class="w-40 px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Objetivo</th>
+                        <th class="w-40 px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Método</th>
+                        <th class="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Impacto</th>
+                        <th class="w-32 px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                     {% for url in urls %}
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
-                        <td class="px-6 py-4 text-sm font-medium text-gray-800 dark:text-gray-200">{{ url.get_protocolo_display }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-mono break-all max-w-xs">{{ url.url }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ url.ip }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ url.puerto }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ url.get_objetivo_display }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-full text-xs">{{ url.get_metodo_display }}</span>
+                        <!-- Protocolo -->
+                        <td class="w-24 px-4 py-3 text-sm font-medium text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                            {{ url.get_protocolo_display }}
                         </td>
-                        <td class="px-6 py-4 text-sm">
+                        
+                        <!-- URL -->
+                        <td class="min-w-[300px] px-4 py-3">
+                            <div class="text-sm text-gray-600 dark:text-gray-300 font-mono truncate max-w-[300px]">
+                                {{ url.url }}
+                            </div>
+                        </td>
+                        
+                        <!-- IP -->
+                        <td class="w-32 px-4 py-3 text-sm text-gray-600 dark:text-gray-300 font-mono">
+                            {{ url.ip|default:"-" }}
+                        </td>
+                        
+                        <!-- Puerto -->
+                        <td class="w-20 px-4 py-3 text-sm text-gray-600 dark:text-gray-300 text-center">
+                            {{ url.puerto }}
+                        </td>
+                        
+                        <!-- Objetivo -->
+                        <td class="w-40 px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                            {{ url.get_objetivo_display|default:"-" }}
+                        </td>
+                        
+                        <!-- Método -->
+                        <td class="w-40 px-4 py-3 text-sm">
+                            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-full text-xs whitespace-nowrap">
+                                {{ url.get_metodo_display|default:"-" }}
+                            </span>
+                        </td>
+                        
+                        <!-- Impacto Legal -->
+                        <td class="w-32 px-4 py-3 text-sm">
                             {% if url.impacto_legal == 'GRAVE' %}
-                                <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-xs">Grave</span>
+                                <span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-xs whitespace-nowrap">Grave</span>
                             {% elif url.impacto_legal == 'MODERADO' %}
-                                <span class="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-100 rounded-full text-xs">Moderado</span>
+                                <span class="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-100 rounded-full text-xs whitespace-nowrap">Moderado</span>
+                            {% elif url.impacto_legal == 'LEVE' %}
+                                <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 rounded-full text-xs whitespace-nowrap">Leve</span>
                             {% else %}
-                                <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 rounded-full text-xs">Leve</span>
+                                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-full text-xs whitespace-nowrap">No definido</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ url.ultima_acceso|date:"Y-m-d H:i" }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 font-medium">{{ url.total_accesos }}</td>
-                        <td class="px-6 py-4 text-sm">
-                            <button onclick="toggleDetails('details-{{ url.id }}')" 
+                        
+                        <!-- Acciones -->
+                        <td class="w-32 px-4 py-3 text-sm whitespace-nowrap">
+                            <button onclick="showEvidenceModal('{{ url.id }}')" 
                                     class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center group">
-                                <span class="mr-1">Detalles</span>
-                                <svg class="w-4 h-4 transform transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                <span class="mr-1">Ver Detalles</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                 </svg>
                             </button>
-                        </td>
-                    </tr>
-                    
-                    <!-- Sección de Detalles Mejorada -->
-                    <tr id="details-{{ url.id }}" class="hidden bg-gray-50 dark:bg-gray-900">
-                        <td colspan="10" class="px-6 py-4">
-                            <div class="space-y-6 max-w-7xl mx-auto">
-                                <!-- Descripción -->
-                                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-                                    <h4 class="font-semibold dark:text-gray-200 mb-3 flex items-center">
-                                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        Descripción
-                                    </h4>
-                                    <p class="dark:text-gray-300 text-sm leading-relaxed">{{ url.descripcion|default:"Sin descripción" }}</p>
-                                </div>
-                                
-                                <!-- Accesos por Entidad -->
-                                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-                                    <h4 class="font-semibold dark:text-gray-200 mb-4 flex items-center">
-                                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                        </svg>
-                                        Accesos por Entidad
-                                    </h4>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {% for acceso in url.acceso_set.all %}
-                                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                                                <div class="flex justify-between items-center">
-                                                    <div>
-                                                        <p class="text-sm font-medium dark:text-gray-300">{{ acceso.entidad.nombre }}</p>
-                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ acceso.fecha|date:"Y-m-d H:i" }}</p>
-                                                    </div>
-                                                    <span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full">{{ acceso.entidad.tipo }}</span>
-                                                </div>
-                                            </div>
-                                        {% empty %}
-                                            <p class="dark:text-gray-400 text-sm">No hay registros de acceso</p>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                
-                                <!-- Evidencias -->
-                                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-                                    <h4 class="font-semibold dark:text-gray-200 mb-4 flex items-center">
-                                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        Evidencias Técnicas
-                                    </h4>
-                                    <div class="space-y-3">
-                                        {% for evidencia in url.evidencias.all %}
-                                            <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-4 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                                                <div class="flex items-center space-x-4">
-                                                    <div class="flex-shrink-0">
-                                                        {% if evidencia.archivo %}
-                                                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                            </svg>
-                                                        {% else %}
-                                                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                            </svg>
-                                                        {% endif %}
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-sm font-medium dark:text-gray-300">{{ evidencia.get_metodo_deteccion_display }}</p>
-                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ evidencia.fecha_creacion|date:"Y-m-d H:i" }}</p>
-                                                    </div>
-                                                </div>
-                                                {% if evidencia.archivo %}
-                                                    <a href="{{ evidencia.archivo.url }}" 
-                                                       download
-                                                       class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm flex items-center transition-colors">
-                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                                        </svg>
-                                                        Descargar
-                                                    </a>
-                                                {% endif %}
-                                            </div>
-                                        {% empty %}
-                                            <p class="dark:text-gray-400 text-sm">No hay evidencias registradas</p>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -245,7 +254,7 @@
                 <h3 class="mt-2 text-lg font-medium dark:text-gray-200">No se encontraron direcciones URL</h3>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     No se han encontrado direcciones URL maliciosas en el sistema. 
-                    {% if not filtro %}
+                    {% if filtro %}
                         <br>
                         Por favor, revise que los filtros sean correctos.
                     {% endif %}
@@ -255,12 +264,307 @@
     {% endif %}
 </div>
 
+<!-- Modal para Detalles -->
+<div id="evidenceModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+            <h3 class="text-xl font-semibold dark:text-gray-200">Detalles de URL Maliciosa</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Modal Content -->
+        <div class="p-5 overflow-y-auto flex-1">
+            <!-- Sección de Información General -->
+            <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg mb-6">
+                <h4 class="font-semibold dark:text-gray-200 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Información General
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">URL:</p>
+                        <p class="text-sm font-medium dark:text-gray-300 font-mono break-all" id="modalUrl"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">IP:</p>
+                        <p class="text-sm font-medium dark:text-gray-300 font-mono" id="modalIp"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Protocolo/Puerto:</p>
+                        <p class="text-sm font-medium dark:text-gray-300" id="modalProtocolo"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Impacto Legal:</p>
+                        <p class="text-sm font-medium dark:text-gray-300" id="modalImpacto"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Objetivo:</p>
+                        <p class="text-sm font-medium dark:text-gray-300" id="modalObjetivo"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Método:</p>
+                        <p class="text-sm font-medium dark:text-gray-300" id="modalMetodo"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Fecha Detección:</p>
+                        <p class="text-sm font-medium dark:text-gray-300" id="modalFechaDeteccion"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Último Acceso:</p>
+                        <p class="text-sm font-medium dark:text-gray-300" id="modalUltimoAcceso"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Total Accesos:</p>
+                        <p class="text-sm font-medium dark:text-gray-300" id="modalTotalAccesos"></p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Descripción:</p>
+                        <p class="text-sm dark:text-gray-300" id="modalDescripcion"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sección de Evidencias de Detección -->
+            <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg mb-6">
+                <h4 class="font-semibold dark:text-gray-200 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Evidencias de Detección
+                </h4>
+                <div class="space-y-4" id="evidenciasSection">
+                    <!-- Contenido dinámico de evidencias -->
+                </div>
+            </div>
+            
+            <!-- Sección de Intentos de Acceso por Institución -->
+            <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                <h4 class="font-semibold dark:text-gray-200 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    Intentos de Acceso por Institución
+                </h4>
+                <div class="space-y-4" id="accesosSection">
+                    <!-- Contenido dinámico de accesos -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="flex justify-end p-5 border-t border-gray-200 dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800">
+            <button onclick="closeModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition-colors">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Detalles Técnicos -->
+<div id="technicalDetailsModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col">
+        <div class="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+            <h3 class="text-xl font-semibold dark:text-gray-200">Detalles Técnicos</h3>
+            <button onclick="closeTechnicalDetailsModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="p-5 overflow-y-auto flex-1">
+            <textarea id="technicalDetailsTextarea" class="w-full h-full p-4 bg-gray-50 dark:bg-gray-700 dark:text-gray-200 rounded-lg font-mono text-sm" readonly></textarea>
+        </div>
+        
+        <div class="flex justify-end p-5 border-t border-gray-200 dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800">
+            <button onclick="closeTechnicalDetailsModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition-colors">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
-function toggleDetails(elementId) {
-    const detailsRow = document.getElementById(elementId);
-    detailsRow.classList.toggle('hidden');
-    const icon = detailsRow.previousElementSibling.querySelector('svg');
-    icon.classList.toggle('rotate-180');
+// Datos precargados desde el contexto de Django
+const urlsData = JSON.parse('{{ urls_data_json|escapejs }}');
+
+// Función para mostrar el modal con los detalles
+function showEvidenceModal(urlId) {
+    const modal = document.getElementById('evidenceModal');
+    modal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    
+    const urlData = urlsData.find(url => url.id == urlId);
+    
+    if (!urlData) {
+        console.error('No se encontraron datos para la URL con ID:', urlId);
+        return;
+    }
+    
+    // Actualizar información general
+    document.getElementById('modalUrl').textContent = urlData.url;
+    document.getElementById('modalIp').textContent = urlData.ip || "-";
+    document.getElementById('modalProtocolo').textContent = urlData.protocolo;
+    document.getElementById('modalImpacto').textContent = urlData.impacto || "No definido";
+    document.getElementById('modalObjetivo').textContent = urlData.objetivo || "-";
+    document.getElementById('modalMetodo').textContent = urlData.metodo || "-";
+    document.getElementById('modalFechaDeteccion').textContent = urlData.fecha_deteccion;
+    document.getElementById('modalUltimoAcceso').textContent = urlData.ultimo_acceso;
+    document.getElementById('modalTotalAccesos').textContent = urlData.total_accesos;
+    document.getElementById('modalDescripcion').textContent = urlData.descripcion;
+    
+    // Generar contenido de evidencias
+    const evidenciasSection = document.getElementById('evidenciasSection');
+    evidenciasSection.innerHTML = '';
+    
+    // Dentro de showEvidenceModal, en la generación de evidencias:
+    if (urlData.evidencias && urlData.evidencias.length > 0) {
+        urlData.evidencias.forEach(evidencia => {
+            const showDownloadBtn = evidencia.archivo;
+            const hasTechnicalDetails = evidencia.datos_tecnicos && Object.keys(evidencia.datos_tecnicos).length > 0;
+            
+            const evidenciaHTML = `
+                <div class="border rounded-lg overflow-hidden hover:shadow-md transition-shadow dark:border-gray-600">
+                    <div class="${hasTechnicalDetails ? 'grid grid-cols-1 md:grid-cols-2 divide-x divide-gray-200 dark:divide-gray-600' : ''}">
+                        <!-- Columna izquierda - Información básica -->
+                        <div class="p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium dark:text-gray-200">Institución: <span class="text-blue-600 dark:text-blue-400">${evidencia.institucion}</span></p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Método: <span class="text-gray-700 dark:text-gray-300">${evidencia.metodo}</span></p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Fecha: <span class="text-gray-700 dark:text-gray-300">${evidencia.fecha}</span></p>
+                                </div>
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full text-xs">Confirmada</span>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Descripción:</p>
+                                <p class="text-sm dark:text-gray-300 mt-1">${evidencia.descripcion || 'Sin descripción'}</p>
+                            </div>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                ${showDownloadBtn ? `
+                                <button onclick="window.open('${evidencia.archivo}', '_blank')" 
+                                        class="px-3 py-1 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800 text-green-800 dark:text-green-200 rounded text-sm flex items-center transition-colors">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    </svg>
+                                    Descargar Evidencia
+                                </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Columna derecha - Detalles técnicos (solo si existen) -->
+                        ${hasTechnicalDetails ? `
+                        <div class="p-4 bg-gray-50 dark:bg-gray-800">
+                            <div class="flex items-center justify-between mb-2">
+                                <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300">Detalles Técnicos</h5>
+                            </div>
+                            <textarea 
+                                class="w-full h-40 p-3 bg-white dark:bg-gray-700 dark:text-gray-200 rounded-lg font-mono text-xs border border-gray-200 dark:border-gray-600" 
+                                readonly>${JSON.stringify(evidencia.datos_tecnicos, null, 2)}</textarea>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            evidenciasSection.innerHTML += evidenciaHTML;
+        });
+    } else {
+        evidenciasSection.innerHTML = '<p class="dark:text-gray-400 text-sm">No hay evidencias registradas</p>';
+    }
+    
+    // Generar contenido de accesos
+    const accesosSection = document.getElementById('accesosSection');
+    accesosSection.innerHTML = '';
+    
+    if (urlData.accesos && urlData.accesos.length > 0) {
+        const sortedAccesos = [...urlData.accesos].sort((a, b) => {
+            if (a.institucion === "Anónima") return 1;
+            if (b.institucion === "Anónima") return -1;
+            return 0;
+        });
+        
+        sortedAccesos.forEach(acceso => {
+            const accesoHTML = `
+                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow dark:border-gray-600">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-medium dark:text-gray-200">${acceso.institucion}</p>
+                            ${acceso.tipo !== "Desconocido" ? `
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Tipo: <span class="text-gray-700 dark:text-gray-300">${acceso.tipo}</span></p>
+                            ` : ''}
+                        </div>
+                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-full text-xs">${acceso.intentos} intento${acceso.intentos !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div class="mt-2">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Último intento: <span class="text-gray-700 dark:text-gray-300">${acceso.ultimo_intento}</span></p>
+                    </div>
+                </div>
+            `;
+            accesosSection.innerHTML += accesoHTML;
+        });
+    } else {
+        accesosSection.innerHTML = '<p class="dark:text-gray-400 text-sm">No hay registros de acceso</p>';
+    }
+}
+
+// Función para mostrar detalles técnicos en un modal
+function showTechnicalDetails(details) {
+    // Convertir a string si es un objeto
+    let detailsStr = typeof details === 'object' ? JSON.stringify(details, null, 2) : details;
+    
+    // Limpiar y formatear el string
+    try {
+        // Intentar parsear y volver a string para formatear
+        const parsed = JSON.parse(detailsStr);
+        detailsStr = JSON.stringify(parsed, null, 2);
+    } catch (e) {
+        // Si no es JSON válido, mostrar el contenido original
+        console.warn('Los detalles técnicos no son JSON válido:', e);
+    }
+
+    // Mostrar en el textarea
+    const textarea = document.getElementById('technicalDetailsTextarea');
+    textarea.value = detailsStr;
+    textarea.style.height = 'auto';
+    textarea.style.height = (textarea.scrollHeight) + 'px';
+    
+    // Mostrar el modal
+    document.getElementById('technicalDetailsModal').classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+}
+
+// Función para cerrar el modal de detalles técnicos
+function closeTechnicalDetailsModal() {
+    document.getElementById('technicalDetailsModal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+}
+
+// Función para cerrar el modal principal
+function closeModal() {
+    document.getElementById('evidenceModal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+}
+
+// Cerrar modales al hacer clic fuera del contenido
+window.onclick = function(event) {
+    const evidenceModal = document.getElementById('evidenceModal');
+    const technicalModal = document.getElementById('technicalDetailsModal');
+    
+    if (event.target === evidenceModal) {
+        closeModal();
+    }
+    
+    if (event.target === technicalModal) {
+        closeTechnicalDetailsModal();
+    }
 }
 </script>
 {% endblock contenido %}
