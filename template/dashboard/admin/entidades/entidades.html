@@ -66,11 +66,16 @@
                                         </button>
                                         
                                         <!-- Botón Estadísticas -->
-                                        <button onclick="document.getElementById('stats-modal-{{e.id}}').showModal()" 
-                                                class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300 p-1.5 rounded-full hover:bg-purple-50 dark:hover:bg-gray-600 transition-colors"
-                                                title="Estadísticas">
-                                            <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
-                                        </button>
+                                        <form action="{% url 'estadistica' %}" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="entidad_id" value="{{e.id}}">
+                                            <button type="submit"
+                                                    class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300 p-1.5 rounded-full hover:bg-purple-50 dark:hover:bg-gray-600 transition-colors"
+                                                    title="Estadísticas">
+                                                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                                            </button>
+                                        </form>
+                                        
                                         
                                         <!-- Botón Editar -->
                                         <a href="{% url 'editar_entidad' e.id %}" 
@@ -193,85 +198,6 @@
 
                                 <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-3 bg-gray-50 dark:bg-gray-700/30 rounded-b-xl flex justify-end">
                                     <button onclick="document.getElementById('modal-{{e.id}}').close()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 rounded-lg transition-colors text-gray-800 dark:text-gray-200 font-medium">
-                                        Cerrar
-                                    </button>
-                                </div>
-                            </dialog>
-
-                            <!-- Modal de Estadísticas -->
-                            <dialog id="stats-modal-{{e.id}}" class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl p-0">
-                                <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-center bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800">
-                                    <div>
-                                        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Estadísticas de {{e.nombre_entidad}}</h3>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400">Métricas y análisis de la entidad</p>
-                                    </div>
-                                    <button onclick="document.getElementById('stats-modal-{{e.id}}').close()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        <i data-lucide="x" class="w-6 h-6"></i>
-                                    </button>
-                                </div>
-
-                                <div class="p-6">
-                                    <div class="space-y-6">
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div class="bg-purple-50 dark:bg-gray-700 p-4 rounded-lg">
-                                                <div class="flex items-center">
-                                                    <div class="p-3 rounded-full bg-purple-100 dark:bg-purple-900/50 mr-4">
-                                                        <i data-lucide="users" class="w-6 h-6 text-purple-600 dark:text-purple-400"></i>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Usuarios</p>
-                                                        <p class="text-2xl font-semibold dark:text-gray-200">24</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="bg-blue-50 dark:bg-gray-700 p-4 rounded-lg">
-                                                <div class="flex items-center">
-                                                    <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900/50 mr-4">
-                                                        <i data-lucide="activity" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Actividad (30d)</p>
-                                                        <p class="text-2xl font-semibold dark:text-gray-200">156</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                                            <h4 class="font-medium text-gray-800 dark:text-gray-200 mb-3 flex items-center">
-                                                <i data-lucide="bar-chart-2" class="w-4 h-4 mr-2 text-indigo-500"></i>
-                                                Actividad mensual
-                                            </h4>
-                                            <div class="h-64 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center text-gray-400 dark:text-gray-500">
-                                                [Gráfico de actividad]
-                                            </div>
-                                        </div>
-
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div class="bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                                                <h4 class="font-medium text-gray-800 dark:text-gray-200 mb-2 flex items-center">
-                                                    <i data-lucide="pie-chart" class="w-4 h-4 mr-2 text-green-500"></i>
-                                                    Distribución
-                                                </h4>
-                                                <div class="h-40 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center text-gray-400 dark:text-gray-500">
-                                                    [Gráfico circular]
-                                                </div>
-                                            </div>
-                                            <div class="bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                                                <h4 class="font-medium text-gray-800 dark:text-gray-200 mb-2 flex items-center">
-                                                    <i data-lucide="trending-up" class="w-4 h-4 mr-2 text-yellow-500"></i>
-                                                    Tendencias
-                                                </h4>
-                                                <div class="h-40 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center text-gray-400 dark:text-gray-500">
-                                                    [Gráfico de tendencias]
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-3 bg-gray-50 dark:bg-gray-700/30 rounded-b-xl flex justify-end">
-                                    <button onclick="document.getElementById('stats-modal-{{e.id}}').close()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 rounded-lg transition-colors text-gray-800 dark:text-gray-200 font-medium">
                                         Cerrar
                                     </button>
                                 </div>

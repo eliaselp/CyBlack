@@ -1,7 +1,7 @@
 {% extends 'dashboard/admin/base_admin.html' %}
 
 {% block contenido %}
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
     {% if urls %}
         <!-- Filtros Avanzados - Diseño Profesional con Soporte para Tema Claro/Oscuro -->
         <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
@@ -154,15 +154,6 @@
             </form>
         </div>
 
-        <script>
-        
-
-        document.getElementById('filtrosForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Lógica para aplicar filtros
-            console.log('Filtros aplicados');
-        });
-        </script>
         <!-- Tabla Simplificada -->
         <div class="overflow-x-auto">
             <table class="w-full">
@@ -264,127 +255,180 @@
     {% endif %}
 </div>
 
-<!-- Modal para Detalles -->
-<div id="evidenceModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-        <!-- Modal Header -->
-        <div class="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
-            <h3 class="text-xl font-semibold dark:text-gray-200">Detalles de URL Maliciosa</h3>
-            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<!-- Modal para Detalles - Versión Mejorada -->
+<div id="evidenceModal" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+    <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+        <!-- Modal Header - Mejorado -->
+        <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Detalles de URL Maliciosa</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" id="modalUrlTitle"></p>
+            </div>
+            <button onclick="closeModal()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
         </div>
         
-        <!-- Modal Content -->
-        <div class="p-5 overflow-y-auto flex-1">
-            <!-- Sección de Información General -->
-            <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg mb-6">
-                <h4 class="font-semibold dark:text-gray-200 mb-4 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    Información General
-                </h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">URL:</p>
-                        <p class="text-sm font-medium dark:text-gray-300 font-mono break-all" id="modalUrl"></p>
+        <!-- Modal Content - Reorganizado -->
+        <div class="p-6 overflow-y-auto flex-1">
+            <!-- Pestañas para secciones -->
+            <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+                <nav class="-mb-px flex space-x-8">
+                    <button id="tab-general" class="tab-button active border-b-2 border-blue-500 text-blue-600 dark:text-blue-400 dark:border-blue-400 py-4 px-4 font-medium">
+                        Información General
+                    </button>
+                    <button id="tab-evidencias" class="tab-button border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 py-4 px-4 font-medium">
+                        Evidencias
+                    </button>
+                    <button id="tab-accesos" class="tab-button border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 py-4 px-4 font-medium">
+                        Intentos de Acceso
+                    </button>
+                </nav>
+            </div>
+            
+            <!-- Contenido de pestañas -->
+            <div id="tab-general-content" class="tab-content active">
+                <!-- Tarjeta de información general mejorada -->
+                <div class="bg-gray-50/50 dark:bg-gray-700/50 p-6 rounded-xl mb-6 border border-gray-200 dark:border-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Grupo 1: URL e IP -->
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">URL</h4>
+                            <p class="text-base font-mono break-all dark:text-gray-200" id="modalUrl"></p>
+                            
+                            <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-4">Dirección IP</h4>
+                            <p class="text-base font-mono dark:text-gray-200" id="modalIp"></p>
+                        </div>
+                        
+                        <!-- Grupo 2: Detalles técnicos -->
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Protocolo</h4>
+                            <p class="text-base dark:text-gray-200" id="modalProtocolo"></p>
+                            
+                            <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-4">Puerto</h4>
+                            <p class="text-base dark:text-gray-200" id="modalPuerto"></p>
+                            
+                            <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-4">Impacto Legal</h4>
+                            <p class="text-base" id="modalImpacto"></p>
+                        </div>
+                        
+                        <!-- Grupo 3: Clasificación -->
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Objetivo</h4>
+                            <p class="text-base dark:text-gray-200" id="modalObjetivo"></p>
+                            
+                            <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-4">Método</h4>
+                            <p class="text-base dark:text-gray-200" id="modalMetodo"></p>
+                        </div>
+                        
+                        <!-- Grupo 4: Fechas -->
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha Detección</h4>
+                            <p class="text-base dark:text-gray-200" id="modalFechaDeteccion"></p>
+                            
+                            <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-4">Último Acceso</h4>
+                            <p class="text-base dark:text-gray-200" id="modalUltimoAcceso"></p>
+                        </div>
+                        
+                        <!-- Grupo 5: Estadísticas -->
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Accesos</h4>
+                            <p class="text-base dark:text-gray-200" id="modalTotalAccesos"></p>
+                            
+                            <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-4">Evidencias</h4>
+                            <p class="text-base dark:text-gray-200" id="modalTotalEvidencias"></p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">IP:</p>
-                        <p class="text-sm font-medium dark:text-gray-300 font-mono" id="modalIp"></p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Protocolo/Puerto:</p>
-                        <p class="text-sm font-medium dark:text-gray-300" id="modalProtocolo"></p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Impacto Legal:</p>
-                        <p class="text-sm font-medium dark:text-gray-300" id="modalImpacto"></p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Objetivo:</p>
-                        <p class="text-sm font-medium dark:text-gray-300" id="modalObjetivo"></p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Método:</p>
-                        <p class="text-sm font-medium dark:text-gray-300" id="modalMetodo"></p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Fecha Detección:</p>
-                        <p class="text-sm font-medium dark:text-gray-300" id="modalFechaDeteccion"></p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Último Acceso:</p>
-                        <p class="text-sm font-medium dark:text-gray-300" id="modalUltimoAcceso"></p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Total Accesos:</p>
-                        <p class="text-sm font-medium dark:text-gray-300" id="modalTotalAccesos"></p>
-                    </div>
-                    <div class="md:col-span-2">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Descripción:</p>
-                        <p class="text-sm dark:text-gray-300" id="modalDescripcion"></p>
+                    
+                    <!-- Descripción en ancho completo -->
+                    <div class="mt-6">
+                        <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Descripción</h4>
+                        <p class="text-base dark:text-gray-300 mt-2 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700" id="modalDescripcion"></p>
                     </div>
                 </div>
             </div>
             
-            <!-- Sección de Evidencias de Detección -->
-            <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg mb-6">
-                <h4 class="font-semibold dark:text-gray-200 mb-4 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    Evidencias de Detección
-                </h4>
+            <!-- Contenido de pestaña de evidencias -->
+            <div id="tab-evidencias-content" class="tab-content hidden">
                 <div class="space-y-4" id="evidenciasSection">
                     <!-- Contenido dinámico de evidencias -->
                 </div>
+                
+                <!-- Mensaje cuando no hay evidencias -->
+                <div id="no-evidencias" class="hidden text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h3 class="mt-2 text-lg font-medium dark:text-gray-200">No hay evidencias registradas</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        No se han encontrado evidencias técnicas para esta URL.
+                    </p>
+                </div>
             </div>
             
-            <!-- Sección de Intentos de Acceso por Institución -->
-            <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                <h4 class="font-semibold dark:text-gray-200 mb-4 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                    Intentos de Acceso por Institución
-                </h4>
+            <!-- Contenido de pestaña de accesos -->
+            <div id="tab-accesos-content" class="tab-content hidden">
                 <div class="space-y-4" id="accesosSection">
                     <!-- Contenido dinámico de accesos -->
+                </div>
+                
+                <!-- Mensaje cuando no hay accesos -->
+                <div id="no-accesos" class="hidden text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <h3 class="mt-2 text-lg font-medium dark:text-gray-200">No hay registros de acceso</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        No se han registrado intentos de acceso a esta URL.
+                    </p>
                 </div>
             </div>
         </div>
         
-        <!-- Modal Footer -->
-        <div class="flex justify-end p-5 border-t border-gray-200 dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800">
-            <button onclick="closeModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition-colors">
-                Cerrar
-            </button>
+        <!-- Modal Footer - Mejorado -->
+        <div class="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                ID: <span class="font-mono dark:text-gray-300" id="modalId"></span>
+            </div>
+            <div class="space-x-3">
+                <button onclick="closeModal()" class="px-5 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Cerrar
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para Detalles Técnicos -->
-<div id="technicalDetailsModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] flex flex-col">
-        <div class="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
-            <h3 class="text-xl font-semibold dark:text-gray-200">Detalles Técnicos</h3>
-            <button onclick="closeTechnicalDetailsModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<!-- Modal para Detalles Técnicos - Mejorado -->
+<div id="technicalDetailsModal" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+    <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[80vh] flex flex-col overflow-hidden">
+        <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+            <div>
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Detalles Técnicos</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Información técnica completa de la evidencia</p>
+            </div>
+            <button onclick="closeTechnicalDetailsModal()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
         </div>
         
-        <div class="p-5 overflow-y-auto flex-1">
-            <textarea id="technicalDetailsTextarea" class="w-full h-full p-4 bg-gray-50 dark:bg-gray-700 dark:text-gray-200 rounded-lg font-mono text-sm" readonly></textarea>
+        <div class="p-6 overflow-y-auto flex-1">
+            <div class="relative">
+                <button onclick="copyTechnicalDetails()" class="absolute top-2 right-2 z-10 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                    <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                    </svg>
+                </button>
+                <pre id="technicalDetailsText" class="p-4 bg-gray-50 dark:bg-gray-700 dark:text-gray-200 rounded-lg text-sm font-mono overflow-x-auto max-h-[60vh]"></pre>
+            </div>
         </div>
         
-        <div class="flex justify-end p-5 border-t border-gray-200 dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800">
-            <button onclick="closeTechnicalDetailsModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg transition-colors">
+        <div class="flex justify-end p-4 border-t border-gray-200 dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800">
+            <button onclick="closeTechnicalDetailsModal()" class="px-5 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 Cerrar
             </button>
         </div>
@@ -395,7 +439,7 @@
 // Datos precargados desde el contexto de Django
 const urlsData = JSON.parse('{{ urls_data_json|escapejs }}');
 
-// Función para mostrar el modal con los detalles
+// Función para mostrar el modal con los detalles - Versión mejorada
 function showEvidenceModal(urlId) {
     const modal = document.getElementById('evidenceModal');
     modal.classList.remove('hidden');
@@ -408,53 +452,102 @@ function showEvidenceModal(urlId) {
         return;
     }
     
+    // Activar solo la pestaña de información general al abrir
+    switchTab('general');
+    
     // Actualizar información general
+    document.getElementById('modalId').textContent = urlData.id;
+    document.getElementById('modalUrlTitle').textContent = urlData.url;
     document.getElementById('modalUrl').textContent = urlData.url;
     document.getElementById('modalIp').textContent = urlData.ip || "-";
-    document.getElementById('modalProtocolo').textContent = urlData.protocolo;
-    document.getElementById('modalImpacto').textContent = urlData.impacto || "No definido";
-    document.getElementById('modalObjetivo').textContent = urlData.objetivo || "-";
-    document.getElementById('modalMetodo').textContent = urlData.metodo || "-";
+    document.getElementById('modalProtocolo').textContent = `${urlData.protocolo_display}`;
+    document.getElementById('modalPuerto').textContent = urlData.puerto;
+    
+    // Impacto legal con estilo según gravedad
+    const impactoElement = document.getElementById('modalImpacto');
+    if (urlData.impacto === 'GRAVE') {
+        impactoElement.innerHTML = '<span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-sm">Grave</span>';
+    } else if (urlData.impacto === 'MODERADO') {
+        impactoElement.innerHTML = '<span class="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-100 rounded-full text-sm">Moderado</span>';
+    } else if (urlData.impacto === 'LEVE') {
+        impactoElement.innerHTML = '<span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100 rounded-full text-sm">Leve</span>';
+    } else {
+        impactoElement.innerHTML = '<span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded-full text-sm">No definido</span>';
+    }
+    
+    document.getElementById('modalObjetivo').textContent = urlData.objetivo_display || "-";
+    document.getElementById('modalMetodo').textContent = urlData.metodo_display || "-";
     document.getElementById('modalFechaDeteccion').textContent = urlData.fecha_deteccion;
     document.getElementById('modalUltimoAcceso').textContent = urlData.ultimo_acceso;
     document.getElementById('modalTotalAccesos').textContent = urlData.total_accesos;
-    document.getElementById('modalDescripcion').textContent = urlData.descripcion;
+    document.getElementById('modalTotalEvidencias').textContent = urlData.evidencias ? urlData.evidencias.length : 0;
+    document.getElementById('modalDescripcion').textContent = urlData.descripcion || "No hay descripción disponible";
     
     // Generar contenido de evidencias
     const evidenciasSection = document.getElementById('evidenciasSection');
+    const noEvidencias = document.getElementById('no-evidencias');
     evidenciasSection.innerHTML = '';
     
-    // Dentro de showEvidenceModal, en la generación de evidencias:
     if (urlData.evidencias && urlData.evidencias.length > 0) {
-        urlData.evidencias.forEach(evidencia => {
+        noEvidencias.classList.add('hidden');
+        
+        urlData.evidencias.forEach((evidencia, index) => {
             const showDownloadBtn = evidencia.archivo;
             const hasTechnicalDetails = evidencia.datos_tecnicos && Object.keys(evidencia.datos_tecnicos).length > 0;
             
             const evidenciaHTML = `
-                <div class="border rounded-lg overflow-hidden hover:shadow-md transition-shadow dark:border-gray-600">
-                    <div class="${hasTechnicalDetails ? 'grid grid-cols-1 md:grid-cols-2 divide-x divide-gray-200 dark:divide-gray-600' : ''}">
+                <div class="border rounded-xl overflow-hidden hover:shadow-md transition-shadow dark:border-gray-700">
+                    <div class="${hasTechnicalDetails ? 'grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 dark:divide-gray-700' : ''}">
                         <!-- Columna izquierda - Información básica -->
-                        <div class="p-4">
+                        <div class="p-5">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <p class="font-medium dark:text-gray-200">Institución: <span class="text-blue-600 dark:text-blue-400">${evidencia.institucion}</span></p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Método: <span class="text-gray-700 dark:text-gray-300">${evidencia.metodo}</span></p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Fecha: <span class="text-gray-700 dark:text-gray-300">${evidencia.fecha}</span></p>
+                                    <h4 class="font-semibold text-gray-800 dark:text-gray-200">Evidencia #${index + 1}</h4>
+                                    <div class="flex items-center mt-1">
+                                        <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                                        <span class="text-sm text-gray-600 dark:text-gray-300">Estado: Confirmada</span>
+                                    </div>
                                 </div>
-                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full text-xs">Confirmada</span>
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                                    ${evidencia.metodo}
+                                </span>
                             </div>
-                            <div class="mt-3">
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Descripción:</p>
-                                <p class="text-sm dark:text-gray-300 mt-1">${evidencia.descripcion || 'Sin descripción'}</p>
+                            
+                            <div class="mt-4 grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Institución</p>
+                                    <p class="text-sm font-medium dark:text-gray-200 mt-1">${evidencia.institucion}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha</p>
+                                    <p class="text-sm font-medium dark:text-gray-200 mt-1">${evidencia.fecha}</p>
+                                </div>
                             </div>
-                            <div class="mt-3 flex flex-wrap gap-2">
+                            
+                            <div class="mt-4">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Descripción</p>
+                                <p class="text-sm dark:text-gray-300 mt-1">${evidencia.descripcion || 'No hay descripción disponible'}</p>
+                            </div>
+                            
+                            <div class="mt-4 flex flex-wrap gap-2">
                                 ${showDownloadBtn ? `
                                 <button onclick="window.open('${evidencia.archivo}', '_blank')" 
-                                        class="px-3 py-1 bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800 text-green-800 dark:text-green-200 rounded text-sm flex items-center transition-colors">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        class="flex items-center px-3 py-1.5 bg-green-50 hover:bg-green-100 dark:bg-green-900/50 dark:hover:bg-green-900 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-200 rounded-lg text-sm transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                     </svg>
-                                    Descargar Evidencia
+                                    Descargar
+                                </button>
+                                ` : ''}
+                                
+                                ${hasTechnicalDetails ? `
+                                <button onclick="showTechnicalDetails(${JSON.stringify(evidencia.datos_tecnicos)})" 
+                                        class="flex items-center px-3 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/50 dark:hover:bg-blue-900 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-200 rounded-lg text-sm transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    Detalles Técnicos
                                 </button>
                                 ` : ''}
                             </div>
@@ -462,13 +555,16 @@ function showEvidenceModal(urlId) {
                         
                         <!-- Columna derecha - Detalles técnicos (solo si existen) -->
                         ${hasTechnicalDetails ? `
-                        <div class="p-4 bg-gray-50 dark:bg-gray-800">
-                            <div class="flex items-center justify-between mb-2">
-                                <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300">Detalles Técnicos</h5>
+                        <div class="p-5 bg-gray-50 dark:bg-gray-800/50">
+                            <div class="flex items-center justify-between mb-3">
+                                <h5 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Vista Previa Técnica</h5>
+                                <button onclick="showTechnicalDetails(${JSON.stringify(evidencia.datos_tecnicos)})" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+                                    Ver completo
+                                </button>
                             </div>
-                            <textarea 
-                                class="w-full h-40 p-3 bg-white dark:bg-gray-700 dark:text-gray-200 rounded-lg font-mono text-xs border border-gray-200 dark:border-gray-600" 
-                                readonly>${JSON.stringify(evidencia.datos_tecnicos, null, 2)}</textarea>
+                            <div class="bg-white dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto">
+                                <code class="text-xs font-mono dark:text-gray-300">${formatTechnicalPreview(evidencia.datos_tecnicos)}</code>
+                            </div>
                         </div>
                         ` : ''}
                     </div>
@@ -477,46 +573,129 @@ function showEvidenceModal(urlId) {
             evidenciasSection.innerHTML += evidenciaHTML;
         });
     } else {
-        evidenciasSection.innerHTML = '<p class="dark:text-gray-400 text-sm">No hay evidencias registradas</p>';
+        noEvidencias.classList.remove('hidden');
     }
     
     // Generar contenido de accesos
     const accesosSection = document.getElementById('accesosSection');
+    const noAccesos = document.getElementById('no-accesos');
     accesosSection.innerHTML = '';
     
     if (urlData.accesos && urlData.accesos.length > 0) {
+        noAccesos.classList.add('hidden');
+        
         const sortedAccesos = [...urlData.accesos].sort((a, b) => {
             if (a.institucion === "Anónima") return 1;
             if (b.institucion === "Anónima") return -1;
-            return 0;
+            return b.intentos - a.intentos;
         });
         
         sortedAccesos.forEach(acceso => {
             const accesoHTML = `
-                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow dark:border-gray-600">
-                    <div class="flex justify-between items-center">
+                <div class="border rounded-xl p-5 hover:shadow-md transition-shadow dark:border-gray-700">
+                    <div class="flex justify-between items-start">
                         <div>
-                            <p class="font-medium dark:text-gray-200">${acceso.institucion}</p>
+                            <h4 class="font-semibold text-gray-800 dark:text-gray-200">${acceso.institucion}</h4>
                             ${acceso.tipo !== "Desconocido" ? `
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Tipo: <span class="text-gray-700 dark:text-gray-300">${acceso.tipo}</span></p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${acceso.tipo}</p>
                             ` : ''}
                         </div>
-                        <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-full text-xs">${acceso.intentos} intento${acceso.intentos !== 1 ? 's' : ''}</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                            ${acceso.intentos} intento${acceso.intentos !== 1 ? 's' : ''}
+                        </span>
                     </div>
-                    <div class="mt-2">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Último intento: <span class="text-gray-700 dark:text-gray-300">${acceso.ultimo_intento}</span></p>
+                    
+                    <div class="mt-4 grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Último intento</p>
+                            <p class="text-sm font-medium dark:text-gray-200 mt-1">${acceso.ultimo_intento}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Frecuencia</p>
+                            <p class="text-sm font-medium dark:text-gray-200 mt-1">${calculateFrequency(acceso.intentos, urlData.fecha_deteccion)}</p>
+                        </div>
                     </div>
                 </div>
             `;
             accesosSection.innerHTML += accesoHTML;
         });
     } else {
-        accesosSection.innerHTML = '<p class="dark:text-gray-400 text-sm">No hay registros de acceso</p>';
+        noAccesos.classList.remove('hidden');
     }
 }
 
+// Función para formatear vista previa técnica
+function formatTechnicalPreview(data) {
+    if (!data) return "No hay datos técnicos disponibles";
+    
+    try {
+        const str = JSON.stringify(data, null, 2);
+        return str.length > 300 ? str.substring(0, 300) + "..." : str;
+    } catch (e) {
+        return "Datos técnicos no formateables";
+    }
+}
+
+// Función para calcular frecuencia de accesos
+function calculateFrequency(intentos, fechaDeteccion) {
+    const deteccionDate = new Date(fechaDeteccion);
+    const now = new Date();
+    const diffDays = Math.ceil((now - deteccionDate) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays <= 0) return "Hoy";
+    
+    const freq = intentos / diffDays;
+    if (freq > 1) return `${Math.round(freq)}/día`;
+    if (freq > 0.1) return `${Math.round(freq * 10)/10}/día`;
+    return `${Math.round(intentos / (diffDays/7))}/semana`;
+}
+
+// Función para copiar detalles técnicos
+function copyTechnicalDetails() {
+    const text = document.getElementById('technicalDetailsText').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        // Mostrar notificación de copiado
+        const notification = document.createElement('div');
+        notification.className = 'fixed bottom-4 right-4 px-4 py-2 bg-green-500 text-white rounded-lg shadow-lg text-sm';
+        notification.textContent = '¡Copiado al portapapeles!';
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
+    });
+}
+
+// Función para cambiar entre pestañas
+function switchTab(tabName) {
+    // Ocultar todos los contenidos y desactivar todos los botones
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+        content.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active', 'border-blue-500', 'text-blue-600', 'dark:text-blue-400', 'dark:border-blue-400');
+        button.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+    });
+    
+    // Mostrar el contenido seleccionado y activar el botón
+    document.getElementById(`tab-${tabName}-content`).classList.remove('hidden');
+    document.getElementById(`tab-${tabName}-content`).classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active', 'border-blue-500', 'text-blue-600', 'dark:text-blue-400', 'dark:border-blue-400');
+    document.getElementById(`tab-${tabName}`).classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+}
+
+// Asignar eventos a las pestañas
+document.getElementById('tab-general').addEventListener('click', () => switchTab('general'));
+document.getElementById('tab-evidencias').addEventListener('click', () => switchTab('evidencias'));
+document.getElementById('tab-accesos').addEventListener('click', () => switchTab('accesos'));
+
 // Función para mostrar detalles técnicos en un modal
 function showTechnicalDetails(details) {
+    const modal = document.getElementById('technicalDetailsModal');
+    const textElement = document.getElementById('technicalDetailsText');
+    
     // Convertir a string si es un objeto
     let detailsStr = typeof details === 'object' ? JSON.stringify(details, null, 2) : details;
     
@@ -530,14 +709,11 @@ function showTechnicalDetails(details) {
         console.warn('Los detalles técnicos no son JSON válido:', e);
     }
 
-    // Mostrar en el textarea
-    const textarea = document.getElementById('technicalDetailsTextarea');
-    textarea.value = detailsStr;
-    textarea.style.height = 'auto';
-    textarea.style.height = (textarea.scrollHeight) + 'px';
+    // Mostrar en el elemento pre
+    textElement.textContent = detailsStr;
     
     // Mostrar el modal
-    document.getElementById('technicalDetailsModal').classList.remove('hidden');
+    modal.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
 }
 
@@ -566,5 +742,12 @@ window.onclick = function(event) {
         closeTechnicalDetailsModal();
     }
 }
+
+// Manejar el envío del formulario de filtros
+document.getElementById('filtrosForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Aquí iría la lógica para aplicar los filtros
+    console.log('Filtros aplicados');
+});
 </script>
 {% endblock contenido %}

@@ -1,43 +1,13 @@
 {% extends 'dashboard/admin/base_admin.html' %}
 
 {% block contenido %}
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Stat Cards -->
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow flex items-center justify-between">
+    <!-- Tabla de Entidades -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <!-- Header con título y botón -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-900">
             <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Total URL registradas</p>
-                <p class="text-2xl font-semibold mt-1 text-gray-800 dark:text-white">{{total_urls}}</p>
-            </div>
-            <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg text-blue-600 dark:text-blue-400">
-                <i data-lucide="link" class="w-6 h-6"></i>
-            </div>
-        </div>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Intentos de acceso bloqueados</p>
-                <p class="text-2xl font-semibold mt-1 text-gray-800 dark:text-white">{{total_intentos_acceso}}</p>
-            </div>
-            <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg text-red-600 dark:text-red-400">
-                <i data-lucide="shield-x" class="w-6 h-6"></i>
-            </div>
-        </div>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Sistemas de Detección</p>
-                <p class="text-2xl font-semibold mt-1 text-gray-800 dark:text-white">{{sd}}</p>
-            </div>
-            <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg text-green-600 dark:text-green-400">
-                <i data-lucide="brain-circuit" class="w-6 h-6"></i>
-            </div>
-        </div>
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Sistemas de Monitoreo</p>
-                <p class="text-2xl font-semibold mt-1 text-gray-800 dark:text-white">{{sm}}</p>
-            </div>
-            <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg text-purple-600 dark:text-purple-400">
-                <i data-lucide="network" class="w-6 h-6"></i>
+                <h3 class="text-2xl font-semibold text-gray-800 dark:text-gray-200">Reporte Estadístico</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{entidad.nombre_entidad}}</p>
             </div>
         </div>
     </div>
@@ -64,7 +34,7 @@
             <div class="h-64" id="cyberThreatsChart"></div>
         </div>
     </div>
-{% endblock contenido %}
+{% endblock %}
 
 {% block javascript %}
 <script>
