@@ -14,6 +14,8 @@ urlpatterns = [
 
     path('lista_negra/',include('Lista_negra.urls')),
     path('ajustes/',include('Ajustes.urls')),
+
+    path('estadistica/',views.Estadistica.as_view(),name="estadistica")
 ]
 
 

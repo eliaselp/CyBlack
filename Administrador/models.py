@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 tipos_entidades = ('Empresa Privada','Organización sin fines de lucro', 'Institución Pública')
 tipos_documentos_identidad = ('Carnet de Identidad', 'Pasaporte')
 class Entidad(models.Model):
-    userid = models.OneToOneField(User,on_delete=models.CASCADE,null=False)
+    userid = models.OneToOneField(User,on_delete=models.CASCADE,null=False,related_name='entidad')
     nombre_entidad = models.TextField(null=False,blank=False)
     tipo_entidad = models.TextField(null=False,blank=False)
     direccion_fiscal = models.TextField(null=False,blank=False,unique=True)

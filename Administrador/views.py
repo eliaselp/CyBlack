@@ -14,16 +14,118 @@ import secrets
 import string
 import random
 from django.utils import timezone
-
+from Lista_negra import models as Lista_Negra_models
+from Api import models as Api_models
 # Create your views here.
+from django.views import View
+from django.shortcuts import render, redirect
+from django.db.models import Count
+from django.utils.safestring import mark_safe
+import json
+
+from django.utils.timezone import now
+from django.db.models.functions import TruncMonth
+from dateutil.relativedelta import relativedelta
+
 class Admin_Dashboard(View):
-    def get(self,request):
+    from django.utils.timezone import now
+from django.db.models.functions import TruncMonth
+from django.db.models import Count
+from dateutil.relativedelta import relativedelta
+import json
+from django.utils.safestring import mark_safe
+import calendar
+
+class Admin_Dashboard(View):
+    def get(self, request):
         if request.user.is_authenticated and request.user.is_staff:
-            return render(request,'dashboard/admin/home.html')
+            urls = Lista_Negra_models.URL_Maliciosa.objects.all()
+            accesos_denegados = Lista_Negra_models.Acceso_Denegado.objects.all()
+            sd = Api_models.Credencial.objects.filter(tipo_sistema='Sistema de detección')
+            sm = Api_models.Credencial.objects.filter(tipo_sistema='Sistema de monitoreo')
+
+            # === Labels ===
+            metodo_labels = {
+                'ENGAÑO': 'Phishing',
+                'TECNICO': 'Malware/Exploits',
+                'EVASION': 'Evación'
+            }
+            impacto_labels = {
+                'GRAVE': 'Grave',
+                'MODERADO': 'Moderado',
+                'LEVE': 'Leve'
+            }
+
+            # === Amenazas por tipo ===
+            cyber_threats_data = [{'name': label, 'value': 0} for label in metodo_labels.values()]
+            cyber_threats_qs = Lista_Negra_models.URL_Maliciosa.objects.values('metodo').annotate(total=Count('id'))
+            metodo_map = {metodo_labels.get(entry['metodo'], 'Otro'): entry['total'] for entry in cyber_threats_qs if entry['metodo']}
+            for item in cyber_threats_data:
+                item['value'] = metodo_map.get(item['name'], 0)
+
+            # === Impacto legal ===
+            legal_impact_data = [{'name': label, 'value': 0} for label in impacto_labels.values()]
+            impacto_qs = Lista_Negra_models.URL_Maliciosa.objects.values('impacto_legal').annotate(total=Count('id'))
+            impacto_map = {impacto_labels.get(entry['impacto_legal'], 'Desconocido'): entry['total'] for entry in impacto_qs if entry['impacto_legal']}
+            for item in legal_impact_data:
+                item['value'] = impacto_map.get(item['name'], 0)
+
+            # === Meses ===
+            today = now().replace(day=1)
+            months = [today - relativedelta(months=i) for i in reversed(range(7))]
+
+            # === Evidencias ===
+            evidencias = Lista_Negra_models.Evidencia.objects.filter(
+                fecha_actualizacion__gte=months[0]
+            ).annotate(month=TruncMonth('fecha_actualizacion')) \
+             .values('month') \
+             .annotate(count=Count('id')) \
+             .order_by('month')
+            evidencia_dict = {e['month'].date(): e['count'] for e in evidencias}
+            detecciones_data = [
+                {
+                    'name': mes.strftime('%b'),
+                    'Detecciones': evidencia_dict.get(mes.date(), 0)
+                } for mes in months
+            ]
+
+            # === Accesos por mes ===
+            denegados = Lista_Negra_models.Acceso_Denegado.objects.filter(
+                fecha__gte=months[0]
+            ).annotate(month=TruncMonth('fecha')) \
+             .values('month') \
+             .annotate(count=Count('id')) \
+             .order_by('month')
+            permitidos = Lista_Negra_models.Acceso_Allowed.objects.filter(
+                fecha__gte=months[0]
+            ).annotate(month=TruncMonth('fecha')) \
+             .values('month') \
+             .annotate(count=Count('id')) \
+             .order_by('month')
+
+            denegados_dict = {d['month'].date(): d['count'] for d in denegados}
+            permitidos_dict = {p['month'].date(): p['count'] for p in permitidos}
+
+            accesos_data = [
+                {
+                    'name': mes.strftime('%b'),
+                    'Bloqueadas': denegados_dict.get(mes.date(), 0),
+                    'Permitidas': permitidos_dict.get(mes.date(), 0)
+                } for mes in months
+            ]
+
+            return render(request, 'dashboard/admin/home.html', {
+                'total_urls': len(urls),
+                'total_intentos_acceso': len(accesos_denegados),
+                'sd': len(sd),
+                'sm': len(sm),
+                'cyber_threats_data': mark_safe(json.dumps(cyber_threats_data)),
+                'legal_impact_data': mark_safe(json.dumps(legal_impact_data)),
+                'detecciones_data': mark_safe(json.dumps(detecciones_data)),
+                'accesos_data': mark_safe(json.dumps(accesos_data)),
+            })
         else:
             return redirect('login')
-
-
 
     def post(self,request):
         if request.user.is_authenticated and request.user.is_staff:
@@ -799,8 +901,8 @@ Le informamos que las credenciales de acceso para el {credencial.tipo_sistema} h
 - Fecha de registro: {timezone.localtime(credencial.ultima_actualizacion).strftime("%d/%m/%Y %H:%M:%S")}  
 
 **Archivos adjuntos:**  
-1. `clave_publica.pem`: Clave pública para autenticación.  
-2. `clave_privada.pem`: Clave privada para firma digital (manéjela con confidencialidad).  
+1. `api_key.pem`: Clave pública para autenticación.  
+2. `secret_key.pem`: Clave privada para firma digital (manéjela con confidencialidad).  
 
 
 **Soporte:**  
@@ -914,4 +1016,134 @@ Cyblack
             correo.enviar_correo(email=credencial.entidad_id.email_responsable,Asunto=Asunto,s=Mensaje)
             credencial.delete()
             return Credenciales.Notificacion(request=request,Success='Credencial revocada correctamente.')
+        return Index_views.redirigir_usuario(request)
+
+
+
+
+
+
+class Estadistica(View):
+    def get(self,request):
+        pass
+
+
+    def post(self, request):
+        access = False
+        if request.user.is_staff:
+            access = True
+        entidad = Admin_models.Entidad.objects.filter(userid=request.user)
+        if entidad.exists():
+            access = True
+
+        if access == True:
+            try:
+                entidad = Admin_models.Entidad.objects.get(id=request.POST.get('entidad_id'))
+                
+                # === Labels ===
+                metodo_labels = {
+                    'ENGAÑO': 'Phishing',
+                    'TECNICO': 'Malware/Exploits',
+                    'EVASION': 'Evación'
+                }
+                impacto_labels = {
+                    'GRAVE': 'Grave',
+                    'MODERADO': 'Moderado',
+                    'LEVE': 'Leve'
+                }
+
+                # Obtener URLs relacionadas con la entidad (a través de evidencias o accesos)
+                urls_con_evidencias = Lista_Negra_models.URL_Maliciosa.objects.filter(
+                    evidencias__entidad=entidad
+                ).distinct()
+
+                urls_con_accesos_denegados = Lista_Negra_models.URL_Maliciosa.objects.filter(
+                    accesos_denegados__entidad=entidad
+                ).distinct()
+
+                # Combinar todos los IDs de URLs relevantes
+                url_ids = set(urls_con_evidencias.values_list('id', flat=True)) | \
+                        set(urls_con_accesos_denegados.values_list('id', flat=True))
+
+                # === Amenazas por tipo ===
+                cyber_threats_data = [{'name': label, 'value': 0} for label in metodo_labels.values()]
+                cyber_threats_qs = Lista_Negra_models.URL_Maliciosa.objects.filter(
+                    id__in=url_ids
+                ).values('metodo').annotate(total=Count('id'))
+                
+                metodo_map = {metodo_labels.get(entry['metodo'], 'Otro'): entry['total'] for entry in cyber_threats_qs if entry['metodo']}
+                for item in cyber_threats_data:
+                    item['value'] = metodo_map.get(item['name'], 0)
+
+                # === Impacto legal ===
+                legal_impact_data = [{'name': label, 'value': 0} for label in impacto_labels.values()]
+                impacto_qs = Lista_Negra_models.URL_Maliciosa.objects.filter(
+                    id__in=url_ids
+                ).values('impacto_legal').annotate(total=Count('id'))
+                
+                impacto_map = {impacto_labels.get(entry['impacto_legal'], 'Desconocido'): entry['total'] for entry in impacto_qs if entry['impacto_legal']}
+                for item in legal_impact_data:
+                    item['value'] = impacto_map.get(item['name'], 0)
+
+                # === Meses ===
+                today = now().replace(day=1)
+                months = [today - relativedelta(months=i) for i in reversed(range(7))]
+
+                # === Evidencias ===
+                evidencias = Lista_Negra_models.Evidencia.objects.filter(
+                    entidad=entidad,
+                    fecha_actualizacion__gte=months[0]
+                ).annotate(month=TruncMonth('fecha_actualizacion')) \
+                .values('month') \
+                .annotate(count=Count('id')) \
+                .order_by('month')
+                
+                evidencia_dict = {e['month'].date(): e['count'] for e in evidencias}
+                detecciones_data = [
+                    {
+                        'name': mes.strftime('%b'),
+                        'Detecciones': evidencia_dict.get(mes.date(), 0)
+                    } for mes in months
+                ]
+
+                # === Accesos por mes ===
+                denegados = Lista_Negra_models.Acceso_Denegado.objects.filter(
+                    entidad=entidad,
+                    fecha__gte=months[0]
+                ).annotate(month=TruncMonth('fecha')) \
+                .values('month') \
+                .annotate(count=Count('id')) \
+                .order_by('month')
+                
+                permitidos = Lista_Negra_models.Acceso_Allowed.objects.filter(
+                    entidad=entidad,
+                    fecha__gte=months[0]
+                ).annotate(month=TruncMonth('fecha')) \
+                .values('month') \
+                .annotate(count=Count('id')) \
+                .order_by('month')
+
+                denegados_dict = {d['month'].date(): d['count'] for d in denegados}
+                permitidos_dict = {p['month'].date(): p['count'] for p in permitidos}
+
+                accesos_data = [
+                    {
+                        'name': mes.strftime('%b'),
+                        'Bloqueadas': denegados_dict.get(mes.date(), 0),
+                        'Permitidas': permitidos_dict.get(mes.date(), 0)
+                    } for mes in months
+                ]
+
+                return render(request, 'dashboard/Estadistica/estadistica.html', {
+                    'entidad': entidad,
+                    'cyber_threats_data': mark_safe(json.dumps(cyber_threats_data)),
+                    'legal_impact_data': mark_safe(json.dumps(legal_impact_data)),
+                    'detecciones_data': mark_safe(json.dumps(detecciones_data)),
+                    'accesos_data': mark_safe(json.dumps(accesos_data)),
+                })
+            except Exception as e:
+                print(f"Error: {str(e)}")  # Para depuración
+                return Index_views.redirigir_usuario(request)
+
+
         return Index_views.redirigir_usuario(request)

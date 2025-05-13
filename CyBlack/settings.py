@@ -90,6 +90,9 @@ DATABASES = {
 }
 
 
+
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -155,3 +158,10 @@ TIME_ZONE = 'America/Havana'  # ¡Ojo: se escribe "Havana", no "Habana"!
 
 # Asegúrate de que USE_TZ esté en True para manejo correcto de zonas horarias
 USE_TZ = True
+
+
+
+
+
+#DEBUG = False  # Aumenta el rendimiento al evitar la carga de plantillas de depuración
+LOGGING = {}   # O reduce la verbosidad

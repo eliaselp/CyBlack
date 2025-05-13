@@ -5,7 +5,7 @@ from Index import views as Index_views
 from django.utils.html import escape
 from django.contrib.auth import authenticate,login
 from django.conf import settings
-
+from django_user_agents.utils import get_user_agent
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 from user_agents import parse
@@ -148,6 +148,25 @@ class Cambiar_contrasenna(View):
                 request.user.save()
                 user = authenticate(request, username=request.user.username, password=confirm_password)
                 login(request, user)
+
+                user_agent = get_user_agent(request)
+                
+                # Guardar información en la sesión  
+                request.session['user_agent'] = str(user_agent)
+                request.session['ip_address'] = request.META.get('REMOTE_ADDR')
+                request.session['login_time'] = timezone.now().isoformat()
+                
+                # También puedes guardar los datos parseados directamente
+                request.session['device_info'] = {
+                    'navegador': user_agent.browser.family,
+                    'version': user_agent.browser.version_string,
+                    'sistema_operativo': user_agent.os.family,
+                    'dispositivo': 'Móvil' if user_agent.is_mobile else 
+                                'Tablet' if user_agent.is_tablet else 
+                                'Computadora' if user_agent.is_pc else 
+                                'Bot' if user_agent.is_bot else 'Desconocido'
+                }
+                request.session['is_2fa_enabled'] = True
 
                 # IMPORTANTE: Configura la sesión correctamente
                 request.session.set_expiry(settings.SESSION_COOKIE_AGE)
