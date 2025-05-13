@@ -9,11 +9,12 @@ from urllib.parse import urlparse, urlunparse, ParseResult
 from django.http import JsonResponse
 import re
 from django.core.serializers.json import DjangoJSONEncoder
-
+from django.db import transaction
 
 # Create your views here.
 class Lista_negra(View):
     @staticmethod
+    @transaction.atomic
     def Notification(self,request,Error=None,Success=None):
         if request.user.is_authenticated:
             return render(request,'dashboard/lista_negra/lista_negra.html',{
@@ -25,16 +26,17 @@ class Lista_negra(View):
                 'METODO_DETECCION_CHOICES': Lista_negra_models.Evidencia.METODO_DETECCION_CHOICES,
             })
         return Index_views.redirigir_usuario(request=request)
-    
+
+    @transaction.atomic
     def get(self, request):
         if request.user.is_authenticated:
             # Obtener todas las URLs con sus relaciones
             urls = Lista_negra_models.URL_Maliciosa.objects.all().prefetch_related(
                 'evidencias',
-                'accesos',
-                'accesos__entidad'
+                'accesos_denegados',
+                'accesos_denegados__entidad'
             )
-            
+
             # Obtener todas las entidades únicas para el filtro
             from Administrador.models import Entidad
             entidades = Entidad.objects.all().distinct()
@@ -76,7 +78,7 @@ class Lista_negra(View):
                 accesos = []
                 acceso_counts = {}
                 
-                for acceso in url.accesos.all():
+                for acceso in url.accesos_denegados.all():
                     entidad_nombre = acceso.entidad.nombre_entidad if acceso.entidad else "Anónima"
                     if entidad_nombre not in acceso_counts:
                         acceso_counts[entidad_nombre] = {
@@ -136,7 +138,8 @@ class Lista_negra(View):
                 'urls_data_json': urls_data_json
             })
         return Index_views.redirigir_usuario(request=request)
-    
+
+
     def post(self,request):
         if request.user.is_authenticated:
             return Lista_negra.Notification(request=request)
@@ -197,166 +200,211 @@ def aplicar_filtros(request):
 
 
 
+
 def normalizar_url(url_input: str, protocolo: str = 'http', puerto: str = None) -> str:
     """
-    Normaliza una URL manteniendo la mayoría de componentes originales:
-    
-    1. Asegura el protocolo correcto (http/https en minúsculas)
-    2. Convierte el dominio a minúsculas
-    3. Mantiene path, queries, fragments y otros componentes exactamente como están
-    4. Maneja el puerto según parámetro
-    5. Elimina credenciales de autenticación
-    
+    Normaliza una URL asegurando protocolo, limpieza de credenciales y dominio en minúsculas.
+
     Args:
-        url_input (str): URL a normalizar
-        protocolo (str): Protocolo deseado (http/https)
-        puerto (str): Puerto deseado (opcional)
-    
+        url_input (str): URL a normalizar.
+        protocolo (str): Protocolo deseado ('http' o 'https').
+        puerto (str|int): Puerto deseado (opcional).
+
     Returns:
-        str: URL normalizada
-    
+        str: URL normalizada.
+
     Raises:
-        ValueError: Si la URL no es válida después de normalización
+        ValueError: Si la URL no es válida.
     """
-    if not url_input or not isinstance(url_input, str):
-        return ""
-    
-    # Limpieza inicial de la URL
+    if not isinstance(url_input, str) or not url_input.strip():
+        raise ValueError("URL vacía o inválida")
+
     url_input = url_input.strip()
-    
-    # Asegurar que el protocolo sea válido y en minúsculas
+
+    # Normalizar protocolo
     protocolo = protocolo.lower()
-    if protocolo not in ('http', 'https'):
+    if protocolo not in {'http', 'https'}:
         protocolo = 'http'
-    
-    # Parsear la URL (manejar casos sin protocolo)
+
+    # Agregar protocolo si falta
     if '://' not in url_input:
         url_input = f'{protocolo}://{url_input}'
-    
+
     try:
         parsed = urlparse(url_input)
     except Exception as e:
-        raise ValueError(f"Error al parsear URL: {str(e)}")
-    
-    # Inicializar netloc con el valor parseado
-    netloc = parsed.netloc
-    
-    # Manejar credenciales (username:password@)
-    if parsed.username or parsed.password:
-        netloc = netloc.split('@')[-1]  # Elimina la parte de autenticación
-    
-    # Manejar el puerto
-    if puerto:
-        # Eliminar puerto existente si lo hay
-        netloc = netloc.split(':')[0]
-        # Agregar nuevo puerto
-        netloc = f"{netloc}:{puerto}"
-    
-    # Convertir solo el dominio a minúsculas (parte antes del primer : o /)
-    domain_part = netloc.split(':')[0].split('/')[0]
-    if domain_part:
-        netloc = netloc.replace(domain_part, domain_part.lower(), 1)
-    
-    # Mantener todos los otros componentes exactamente como están
-    normalized_components = ParseResult(
-        scheme=protocolo.lower(),  # Protocolo en minúsculas
-        netloc=netloc,             # Dominio en minúsculas, resto igual
-        path=parsed.path,          # Path original exacto
-        params=parsed.params,      # Parámetros originales
-        query=parsed.query,        # Query string original
-        fragment=parsed.fragment   # Fragmento original
+        raise ValueError(f"Error al parsear la URL: {str(e)}")
+
+    # Limpiar netloc de credenciales
+    hostname = parsed.hostname or ''
+    port = str(puerto) if puerto else (str(parsed.port) if parsed.port else '')
+
+    # Reconstruir netloc (sin credenciales)
+    netloc = hostname.lower()
+    if port:
+        netloc += f':{port}'
+
+    # Construir nuevo ParseResult con componentes originales
+    normalized = ParseResult(
+        scheme=protocolo,
+        netloc=netloc,
+        path=parsed.path or '',
+        params=parsed.params or '',
+        query=parsed.query or '',
+        fragment=parsed.fragment or ''
     )
-    
-    # Construir URL normalizada
-    normalized_url = urlunparse(normalized_components)
-    
-    # Validación final de la URL
-    if not all([normalized_components.scheme, normalized_components.netloc]):
-        raise ValueError("URL no válida después de normalización")
-    
-    return normalized_url
+
+    url_final = urlunparse(normalized)
+
+    # Validación final
+    if not normalized.scheme or not normalized.netloc:
+        raise ValueError("URL no válida tras normalización")
+
+    return url_final
 
 
 
-
-
-
-
-
-
-
-def CrearURLEvidenciaView(FILES, data):
-    # Procesar y validar puerto (ahora obligatorio)
+@transaction.atomic
+def CrearURLEvidenciaView(FILES, data, entidad):
     try:
-        puerto = int(data.get('puerto'))
-        if not (1 <= puerto <= 65535):
-            raise ValidationError("El puerto debe estar entre 1 y 65535")
-    except (ValueError, TypeError):
-        raise ValidationError("Puerto es obligatorio y debe ser un número válido")
+        # =============================================
+        # SECCIÓN 1: VALIDACIONES Y PARSEOS
+        # =============================================
 
-    # Normalizar la URL
-    url = normalizar_url(
-        data.get('url'),
-        data.get('protocolo'),
-        puerto
-    )
-    
-    # Procesar datos de URL_Maliciosa
-    url_data = {
-        'protocolo': data.get('protocolo'),
-        'puerto': puerto,
-        'url': url,
-        'ip': data.get('ip'),
-        'objetivo': data.get('objetivo'),
-        'metodo': data.get('metodo'),
-        'impacto_legal': data.get('impacto_legal'),
-        'descripcion': data.get('descripcion_url'),
-    }
-    
-    # Validar campos obligatorios para URL
-    if not url_data['url'] or not url_data['protocolo']:
-        raise ValidationError("URL y protocolo son campos obligatorios")
-    
-    # Procesar datos de Evidencia
-    evidencia_data = {
-        'metodo_deteccion': data.get('metodo_deteccion'),
-        'descripcion': data.get('descripcion_evidencia'),
-    }
-    
-    # Validar método de detección (obligatorio)
-    if not evidencia_data['metodo_deteccion']:
-        raise ValidationError("Método de detección es obligatorio")
-    
-    # Procesar datos técnicos (JSON)
-    datos_tecnicos = data.get('datos_tecnicos', {})
+        get = data.get  # Optimización: cachear el método
+        try:
+            puerto = int(get('puerto'))
+            if not (1 <= puerto <= 65535):
+                raise ValidationError("Puerto fuera de rango (1-65535)")
+        except (TypeError, ValueError):
+            raise ValidationError("Puerto inválido o ausente")
+
+        protocolo = get('protocolo')
+        raw_url = get('url')
+        if not raw_url or not protocolo:
+            raise ValidationError("URL y protocolo son obligatorios")
+
+        try:
+            url = normalizar_url(raw_url, protocolo, puerto)
+        except Exception as e:
+            raise ValidationError(f"Error al normalizar URL: {str(e)}")
+
+        metodo_deteccion = get('metodo_deteccion')
+        if not metodo_deteccion:
+            raise ValidationError("Método de detección obligatorio")
+
+        # Procesar datos técnicos
+        datos_tecnicos_raw = get('datos_tecnicos', {})
+        if isinstance(datos_tecnicos_raw, str):
+            try:
+                datos_tecnicos = json.loads(datos_tecnicos_raw)
+            except json.JSONDecodeError:
+                raise ValidationError("Datos técnicos no tienen formato JSON válido")
+        elif isinstance(datos_tecnicos_raw, dict):
+            datos_tecnicos = datos_tecnicos_raw
+        else:
+            raise ValidationError("Formato inválido para datos técnicos")
+
+        # Buscar si ya existe la URL y la evidencia
+        url_existente = Lista_negra_models.URL_Maliciosa.objects.filter(url=url).first()
+        evidencia_existente = (
+            Lista_negra_models.Evidencia.objects.filter(
+                url_maliciosa=url_existente, entidad=entidad
+            ).first()
+            if url_existente else None
+        )
+
+        # =============================================
+        # SECCIÓN 2: OPERACIONES DE BD (ATÓMICAS)
+        # =============================================
+
+        with transaction.atomic():
+            if evidencia_existente:
+                evidencia_existente.delete()
+
+            if not url_existente:
+                url_maliciosa = Lista_negra_models.URL_Maliciosa.objects.create(
+                    protocolo=protocolo,
+                    puerto=puerto,
+                    url=url,
+                    ip=get('ip'),
+                    objetivo=get('objetivo'),
+                    metodo=get('metodo'),
+                    impacto_legal=get('impacto_legal'),
+                    descripcion=get('descripcion_url'),
+                )
+            else:
+                url_maliciosa = url_existente
+
+            evidencia = Lista_negra_models.Evidencia(
+                metodo_deteccion=metodo_deteccion,
+                descripcion=get('descripcion_evidencia'),
+                entidad=entidad,
+                url_maliciosa=url_maliciosa,
+                datos_tecnicos=json.dumps(datos_tecnicos),
+            )
+
+            archivo = FILES.get('archivo_evidencia')
+            if archivo:
+                evidencia.archivo = archivo
+
+            evidencia.save()
+
+        # =============================================
+        # RESPUESTA
+        # =============================================
+        return JsonResponse({
+            'status': 'success',
+            'message': 'URL maliciosa y evidencia registradas correctamente',
+            'url_id': url_maliciosa.id,
+            'evidencia_id': evidencia.id,
+        })
+
+    except ValidationError as ve:
+        return JsonResponse({'status': 'error', 'message': str(ve)}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': f'Error interno: {str(e)}'}, status=500)
+
+
+
+@transaction.atomic
+def Query_access(data, entidad):
     try:
-        if isinstance(datos_tecnicos, str):
-            datos_tecnicos = json.loads(datos_tecnicos)
-        elif not isinstance(datos_tecnicos, dict):
-            raise ValidationError("Los datos técnicos deben ser un JSON válido")
+        # =============================================
+        # SECCIÓN 1: VALIDACIONES Y PARSEOS
+        # =============================================
+        get = data.get
+        url = get('url')
         
-        evidencia_data['datos_tecnicos'] = json.dumps(datos_tecnicos)
-    except (json.JSONDecodeError, TypeError) as e:
-        raise ValidationError(f"Formato inválido para datos técnicos: {str(e)}")
-    
-    
-    url_maliciosa = Lista_negra_models.URL_Maliciosa(**url_data)
-    url_maliciosa.save()
-    
-    # Asignar la URL maliciosa a los datos de evidencia
-    evidencia_data['url_maliciosa'] = url_maliciosa
+        print("==>> ",url)
+        
+        # Buscar si ya existe la URL
+        url_existente = Lista_negra_models.URL_Maliciosa.objects.filter(url=url)
+        
+        # =============================================
+        # SECCIÓN 2: OPERACIONES DE BD (ATÓMICAS)
+        # =============================================
 
-    # Crear instancia de Evidencia
-    evidencia = Lista_negra_models.Evidencia(**evidencia_data)
-    
-    # Procesar archivo si existe - AHORA DESPUÉS de crear la instancia
-    if 'archivo_evidencia' in FILES:
-        evidencia.archivo = FILES['archivo_evidencia']
-    
-    # Guardar la evidencia (con o sin archivo)
-    evidencia.save()
-    print(url_maliciosa,evidencia)
-    return JsonResponse({
-        'status': 'success',
-        'message': 'URL maliciosa y evidencia registradas correctamente',
-    })
+        with transaction.atomic():
+            if url_existente.exists():
+                acceso_denegado = Lista_negra_models.Acceso_Denegado.objects.create(
+                    url=url_existente.first(),
+                    entidad=entidad
+                )
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Acceso denegado, la URL es maliciosa',
+                })
+            else:
+                acceso_denegado = Lista_negra_models.Acceso_Allowed.objects.create(
+                    entidad=entidad
+                )
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Acceso permitido',
+                })
+            
+    except ValidationError as ve:
+        return JsonResponse({'status': 'error', 'message': str(ve)}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': f'Error interno: {str(e)}'}, status=500)

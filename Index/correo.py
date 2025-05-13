@@ -28,7 +28,7 @@ def enviar_correo(email,Asunto,s):
 
 
 
-def enviar_correo_con_claves(email, asunto, mensaje, clave_publica_str, clave_privada_str, nombre_archivo_publica="clave_publica.pem", nombre_archivo_privada="clave_privada.pem"):
+def enviar_correo_con_claves(email, asunto, mensaje, clave_publica_str, clave_privada_str, nombre_archivo_publica="api_key.pem", nombre_archivo_privada="secret_key.pem"):
     """
     Envía un correo con las claves como archivos .pem adjuntos (desde strings).
     

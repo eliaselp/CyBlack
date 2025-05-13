@@ -37,7 +37,7 @@ class URL_Maliciosa(models.Model):
         null=False
     )
     puerto = models.IntegerField(null=False)
-    url = models.TextField(null=False)
+    url = models.TextField(null=False,unique=True)
     ip = models.GenericIPAddressField(null=True)
 
     # Clasificaciones
@@ -70,15 +70,19 @@ class URL_Maliciosa(models.Model):
 
 
 
-class Acceso(models.Model):
-    url = models.ForeignKey(URL_Maliciosa, on_delete=models.CASCADE,related_name='accesos')
+class Acceso_Denegado(models.Model):
+    url = models.ForeignKey(URL_Maliciosa, on_delete=models.CASCADE,related_name='accesos_denegados',null=True)
     fecha = models.DateTimeField(auto_now_add=True)
-    entidad = models.ForeignKey(Admin_models.Entidad, on_delete=models.SET_NULL, null=True, related_name='accesos')
-
+    entidad = models.ForeignKey(Admin_models.Entidad, on_delete=models.SET_NULL, null=True, related_name='accesos_denegados')
     def __str__(self):
         return f"Acceso a {self.url} por {self.entidad}"
 
 
+class Acceso_Allowed(models.Model):
+    fecha = models.DateTimeField(auto_now_add=True)
+    entidad = models.ForeignKey(Admin_models.Entidad, on_delete=models.SET_NULL, null=True, related_name='accesos_permitidos')
+    def __str__(self):
+        return f"Acceso de {self.entidad} realizado el {self.fecha}"
 
 
 
@@ -134,7 +138,6 @@ class Evidencia(models.Model):
         verbose_name="Archivo de evidencia"
     )
     datos_tecnicos = models.JSONField(default=dict, blank=True)
-    hash_sha256 = models.CharField(max_length=64, blank=True)
     
     # Fechas
     fecha_creacion = models.DateTimeField(auto_now_add=True)
@@ -145,28 +148,6 @@ class Evidencia(models.Model):
         verbose_name_plural = "Evidencias Técnicas"
         ordering = ['-fecha_creacion']
 
-    def _generar_hash(self):
-        """Genera un hash SHA256 único basado en todos los campos relevantes."""
-        hash_obj = hashlib.sha256()
-        
-        campos = [
-            str(self.metodo_deteccion),
-            str(self.descripcion),
-            json.dumps(self.datos_tecnicos, sort_keys=True),
-            str(self.url_maliciosa_id)
-        ]
-        
-        if self.archivo:
-            self.archivo.seek(0)
-            campos.append(self.archivo.read().decode('utf-8', errors='ignore'))
-            self.archivo.seek(0)
-        
-        hash_obj.update("|".join(campos).encode('utf-8'))
-        return hash_obj.hexdigest()
-
-    def save(self, *args, **kwargs):
-        self.hash_sha256 = self._generar_hash()
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Evidencia #{self.id} - {self.get_metodo_deteccion_display()}"

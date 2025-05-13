@@ -12,7 +12,8 @@ class AuthAndMFAMiddleware:
             reverse('mfa'),
             reverse('logout'),
             reverse('set_secure_net'),
-            reverse('add_url')
+            reverse('add_url'),
+            reverse('query_monitoreo'),
             # Añade aquí otras URLs públicas si es necesario
         ]
         
