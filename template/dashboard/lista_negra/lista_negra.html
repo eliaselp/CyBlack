@@ -1,8 +1,8 @@
-{% extends 'dashboard/admin/base_admin.html' %}
+{% extends base %}
 
 {% block contenido %}
 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-    {% if urls %}
+    {% if urls or filtros%}
         <!-- Filtros Avanzados - Diseño Profesional con Soporte para Tema Claro/Oscuro -->
         <div class="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
             <div class="mb-4">
@@ -15,7 +15,8 @@
                 <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Filtre las URLs maliciosas según múltiples criterios</p>
             </div>
 
-            <form id="filtrosForm" class="space-y-4">
+            <form id="filtrosForm" class="space-y-4" action="{% url 'aplicar_filtros' %}" method="POST">
+                {% csrf_token %}
                 <!-- Búsqueda general -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
@@ -27,6 +28,7 @@
                                 </svg>
                             </div>
                             <input type="text" id="busquedaGeneral" name="busquedaGeneral" 
+                                value="{{ filtros.busquedaGeneral|default:'' }}"
                                 class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500" 
                                 placeholder="URL, IP, descripción...">
                         </div>
@@ -39,7 +41,7 @@
                                 class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                             <option value="">Todos los protocolos</option>
                             {% for protocolo in PROTOCOLO_CHOICES %}
-                                <option value="{{ protocolo.0 }}">{{ protocolo.1 }}</option>
+                                <option value="{{ protocolo.0 }}" {% if filtros.protocolo == protocolo.0|stringformat:"s" %}selected{% endif %}>{{ protocolo.1 }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -47,6 +49,7 @@
                     <div>
                         <label for="filtroPuerto" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Puerto</label>
                         <input type="number" id="filtroPuerto" name="puerto" 
+                            value="{{ filtros.puerto|default:'' }}"
                             class="mt-1 block w-full pl-3 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500" 
                             placeholder="Ej: 80, 443">
                     </div>
@@ -60,7 +63,7 @@
                                 class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                             <option value="">Todos los objetivos</option>
                             {% for objetivo in OBJETIVO_CHOICES %}
-                                <option value="{{ objetivo.0 }}">{{ objetivo.1 }}</option>
+                                <option value="{{ objetivo.0 }}" {% if filtros.objetivo == objetivo.0|stringformat:"s" %}selected{% endif %}>{{ objetivo.1 }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -71,7 +74,7 @@
                                 class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                             <option value="">Todos los métodos</option>
                             {% for metodo in METODO_CHOICES %}
-                                <option value="{{ metodo.0 }}">{{ metodo.1 }}</option>
+                                <option value="{{ metodo.0 }}" {% if filtros.metodo == metodo.0|stringformat:"s" %}selected{% endif %}>{{ metodo.1 }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -82,7 +85,7 @@
                                 class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                             <option value="">Todos los impactos</option>
                             {% for impacto in IMPACTO_LEGAL_CHOICES %}
-                                <option value="{{ impacto.0 }}">{{ impacto.1 }}</option>
+                                <option value="{{ impacto.0 }}" {% if filtros.impacto == impacto.0|stringformat:"s" %}selected{% endif %}>{{ impacto.1 }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -96,7 +99,7 @@
                                 class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                             <option value="">Todos los métodos</option>
                             {% for metodo in METODO_DETECCION_CHOICES %}
-                                <option value="{{ metodo.0 }}">{{ metodo.1 }}</option>
+                                <option value="{{ metodo.0 }}" {% if filtros.metodo_deteccion == metodo.0|stringformat:"s" %}selected{% endif %}>{{ metodo.1 }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -106,10 +109,9 @@
                         <select id="filtroEntidad" name="entidad" 
                                 class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                             <option value="">Todas las entidades</option>
-                            {% for id,nombre in ENTIDADES_CHOICES  %}
-                                <option value="{{id}}">{{nombre}}</option>
+                            {% for id,nombre in ENTIDADES_CHOICES %}
+                                <option value="{{ id }}" {% if filtros.entidad == nombre %}selected{% endif %}>{{ nombre }}</option>
                             {% endfor %}
-                                
                         </select>
                     </div>
                     
@@ -117,34 +119,39 @@
                         <label for="filtroFechaInicio" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Rango de Fechas</label>
                         <div class="flex space-x-2">
                             <input type="date" id="filtroFechaInicio" name="fecha_inicio" 
+                                value="{{ filtros.fecha_inicio|default:'' }}"
                                 class="mt-1 block w-full pl-3 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                             <span class="flex items-center text-gray-500 dark:text-gray-400">a</span>
                             <input type="date" id="filtroFechaFin" name="fecha_fin" 
+                                value="{{ filtros.fecha_fin|default:'' }}"
                                 class="mt-1 block w-full pl-3 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                         </div>
                     </div>
                 </div>
 
-                <!-- Fila de botones -->
-                <div class="flex justify-between pt-2">
-                    <div class="flex space-x-2">
+                <!-- Fila de botones - Modificado para responsive -->
+                <div class="flex flex-col md:flex-row justify-between pt-2 space-y-2 md:space-y-0">
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full md:w-auto">
                         <a href="{% url 'lista_negra' %}" type="button" 
-                                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                                class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 w-full sm:w-auto">
                             <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                             </svg>
                             Restablecer
                         </a>
-                        <button type="button" 
-                                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            Exportar
-                        </button>
+                        
+                        {% if urls %}
+                            <button type="button" onclick="openExportModal()"
+                                    class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 w-full sm:w-auto">
+                                <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Exportar
+                            </button>
+                        {% endif %}
                     </div>
                     <button type="submit" 
-                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 w-full md:w-auto">
                         <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                         </svg>
@@ -153,10 +160,9 @@
                 </div>
             </form>
         </div>
-
         <!-- Tabla Simplificada -->
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table id="urlsTable" class="w-full">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
                         <th class="w-24 px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Protocolo</th>
@@ -401,6 +407,66 @@
     </div>
 </div>
 
+
+<!-- Modal para Exportación -->
+<div id="exportModal" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+    <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+            <div>
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Exportar Datos</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Seleccione el formato de exportación</p>
+            </div>
+            <button onclick="closeExportModal()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Modal Content -->
+        <div class="p-6 overflow-y-auto flex-1">
+            <div class="space-y-4">
+                <div>
+                    <label for="exportFilename" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Nombre del archivo</label>
+                    <input type="text" id="exportFilename" 
+                           class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500" 
+                           placeholder="Ej: reporte_urls_maliciosas" value="reporte_urls_maliciosas">
+                </div>
+                
+                <div>
+                    <p class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Formato de exportación</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="exportTable('xlsx')" class="flex flex-col items-center justify-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span class="mt-2 text-sm font-medium dark:text-gray-200">Excel (XLSX)</span>
+                        </button>
+                        
+                        <button onclick="exportTable('csv')" class="flex flex-col items-center justify-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span class="mt-2 text-sm font-medium dark:text-gray-200">CSV</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="flex justify-end p-4 border-t border-gray-200 dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800">
+            <button onclick="closeExportModal()" class="px-5 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+
 <!-- Modal para Detalles Técnicos - Mejorado -->
 <div id="technicalDetailsModal" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
     <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[80vh] flex flex-col overflow-hidden">
@@ -540,16 +606,7 @@ function showEvidenceModal(urlId) {
                                 </button>
                                 ` : ''}
                                 
-                                ${hasTechnicalDetails ? `
-                                <button onclick="showTechnicalDetails(${JSON.stringify(evidencia.datos_tecnicos)})" 
-                                        class="flex items-center px-3 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/50 dark:hover:bg-blue-900 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-200 rounded-lg text-sm transition-colors">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                    Detalles Técnicos
-                                </button>
-                                ` : ''}
+                                
                             </div>
                         </div>
                         
@@ -558,9 +615,6 @@ function showEvidenceModal(urlId) {
                         <div class="p-5 bg-gray-50 dark:bg-gray-800/50">
                             <div class="flex items-center justify-between mb-3">
                                 <h5 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Vista Previa Técnica</h5>
-                                <button onclick="showTechnicalDetails(${JSON.stringify(evidencia.datos_tecnicos)})" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">
-                                    Ver completo
-                                </button>
                             </div>
                             <div class="bg-white dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 max-h-60 overflow-y-auto">
                                 <code class="text-xs font-mono dark:text-gray-300">${formatTechnicalPreview(evidencia.datos_tecnicos)}</code>
@@ -729,8 +783,189 @@ function closeModal() {
     document.body.classList.remove('overflow-hidden');
 }
 
-// Cerrar modales al hacer clic fuera del contenido
+
+// Funciones para el modal de exportación
+function openExportModal() {
+    document.getElementById('exportModal').classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+}
+
+function closeExportModal() {
+    document.getElementById('exportModal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+}
+
+// Función principal de exportación
+function exportTable(format) {
+    const filename = document.getElementById('exportFilename').value.trim() || 'reporte_urls_maliciosas';
+    const tableId = 'urlsTable'; // Necesitamos agregar este ID a la tabla
+    
+    if (format === 'xlsx') {
+        exportToExcel(tableId, filename);
+    } else {
+        exportToCSV(tableId, filename);
+    }
+    
+    closeExportModal();
+}
+
+// Función para exportar a Excel (usando SheetJS)
+function exportToExcel(tableID, filename = '') {
+    // Verificar si SheetJS está disponible
+    if (typeof XLSX === 'undefined') {
+        alert('La biblioteca SheetJS no está cargada. Usando método alternativo...');
+        exportToExcelBasic(tableID, filename);
+        return;
+    }
+    
+    const table = document.getElementById(tableID);
+    if (!table) {
+        console.error(`No se encontró la tabla con ID: ${tableID}`);
+        return;
+    }
+    
+    // Clonar la tabla para no modificar la original
+    const clonedTable = table.cloneNode(true);
+    
+    // Eliminar la columna de Acciones
+    clonedTable.querySelectorAll('tr').forEach(row => {
+        const actionCell = row.querySelector('td:last-child, th:last-child');
+        if (actionCell) actionCell.remove();
+    });
+    
+    // Crear un libro de trabajo
+    const wb = XLSX.utils.book_new();
+    
+    // Convertir la tabla clonada (sin acciones) a una hoja de trabajo
+    const ws = XLSX.utils.table_to_sheet(clonedTable);
+    
+    // Añadir la hoja al libro
+    XLSX.utils.book_append_sheet(wb, ws, "URLs Maliciosas");
+    
+    // Generar el archivo XLSX
+    XLSX.writeFile(wb, `${filename}.xlsx`);
+}
+
+// Función alternativa para Excel (sin SheetJS)
+function exportToExcelBasic(tableID, filename = '') {
+    const table = document.getElementById(tableID);
+    if (!table) {
+        console.error(`No se encontró la tabla con ID: ${tableID}`);
+        return;
+    }
+
+    // Obtener todas las filas de la tabla
+    const rows = table.querySelectorAll('tr');
+    const data = [];
+
+    // Recorrer cada fila
+    rows.forEach(row => {
+        const rowData = [];
+        // Obtener todas las celdas excepto la última (Acciones)
+        const cells = row.querySelectorAll('th:not(:last-child), td:not(:last-child)');
+        
+        cells.forEach(cell => {
+            // Limpiar el texto (remover iconos SVG, spans, etc.)
+            const clone = cell.cloneNode(true);
+            clone.querySelectorAll('svg, span, button').forEach(el => el.remove());
+            rowData.push(clone.textContent.trim());
+        });
+        
+        data.push(rowData.join('\t')); // TSV para Excel
+    });
+
+    const content = '\uFEFF' + data.join('\n'); // BOM para UTF-8
+    const mimeType = 'application/vnd.ms-excel;charset=utf-8;';
+    const finalFilename = `${filename}.xls`;
+    
+    // Crear el elemento de descarga
+    const link = document.createElement('a');
+    link.href = `data:${mimeType},${encodeURIComponent(content)}`;
+    link.download = finalFilename;
+    
+    // Simular click para descargar
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Función para exportar a CSV (Versión corregida definitiva)
+function exportToCSV(tableID, filename = '') {
+    const table = document.getElementById(tableID);
+    if (!table) {
+        console.error(`No se encontró la tabla con ID: ${tableID}`);
+        return;
+    }
+
+    // Obtener todas las filas de la tabla
+    const rows = table.querySelectorAll('tr');
+    const data = [];
+
+    // Recorrer cada fila
+    rows.forEach(row => {
+        const rowData = [];
+        // Obtener todas las celdas excepto la última (Acciones)
+        const cells = row.querySelectorAll('th:not(:last-child), td:not(:last-child)');
+        
+        cells.forEach(cell => {
+            // Solución especial para las celdas de Método e Impacto
+            let text;
+            
+            // Verificar si es una celda de Método (contiene un span con clase bg-blue-100)
+            const metodoSpan = cell.querySelector('span.bg-blue-100, span.bg-blue-900');
+            if (metodoSpan) {
+                text = metodoSpan.textContent.trim();
+            } 
+            // Verificar si es una celda de Impacto (contiene un span con clases de color)
+            else if (cell.querySelector('span.bg-red-100, span.bg-orange-100, span.bg-yellow-100, span.bg-gray-100, span.bg-red-900, span.bg-orange-900, span.bg-yellow-900, span.bg-gray-700')) {
+                const impactoSpan = cell.querySelector('span');
+                text = impactoSpan.textContent.trim();
+            }
+            // Para otras celdas normales
+            else {
+                // Clonar para no afectar el DOM original
+                const clone = cell.cloneNode(true);
+                // Remover elementos que no queremos en el export
+                clone.querySelectorAll('svg, button, span').forEach(el => el.remove());
+                text = clone.textContent.trim();
+            }
+            
+            // Asegurar que el texto no sea undefined/null
+            const cleanText = text || '';
+            
+            // Escapar comillas para CSV
+            rowData.push(`"${cleanText.replace(/"/g, '""')}"`);
+        });
+        
+        // Solo agregar la fila si tiene datos (evita filas vacías)
+        if (rowData.length > 0) {
+            data.push(rowData.join(','));
+        }
+    });
+
+    const content = data.join('\n');
+    const mimeType = 'text/csv;charset=utf-8;';
+    const finalFilename = `${filename}.csv`;
+    
+    // Crear el elemento de descarga
+    const link = document.createElement('a');
+    link.href = `data:${mimeType},${encodeURIComponent(content)}`;
+    link.download = finalFilename;
+    
+    // Simular click para descargar
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Cerrar modal al hacer clic fuera
 window.onclick = function(event) {
+    const exportModal = document.getElementById('exportModal');
+    if (event.target === exportModal) {
+        closeExportModal();
+    }
+    
+    // Mantener el resto de la función original
     const evidenceModal = document.getElementById('evidenceModal');
     const technicalModal = document.getElementById('technicalDetailsModal');
     
@@ -743,11 +978,5 @@ window.onclick = function(event) {
     }
 }
 
-// Manejar el envío del formulario de filtros
-document.getElementById('filtrosForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    // Aquí iría la lógica para aplicar los filtros
-    console.log('Filtros aplicados');
-});
 </script>
 {% endblock contenido %}

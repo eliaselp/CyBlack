@@ -1,0 +1,121 @@
+INFO 2025-05-19 02:47:23,852 autoreload 15884 2044 Watching for file changes with StatReloader
+INFO 2025-05-19 02:52:08,893 autoreload 9508 6732 Watching for file changes with StatReloader
+INFO 2025-05-19 02:55:53,898 autoreload 5740 5348 Watching for file changes with StatReloader
+INFO 2025-05-19 02:55:56,500 basehttp 5740 7772 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 02:55:58,861 basehttp 5740 7772 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 02:55:58,927 basehttp 5740 7772 "GET /static/css/styles.css HTTP/1.1" 200 4104
+INFO 2025-05-19 02:55:58,955 basehttp 5740 7772 "GET /static/img/favicon.png HTTP/1.1" 200 17136
+INFO 2025-05-19 02:56:03,756 basehttp 5740 7772 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 02:56:52,185 autoreload 5740 5348 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 02:56:52,770 autoreload 18068 20652 Watching for file changes with StatReloader
+INFO 2025-05-19 03:04:13,821 basehttp 18068 13180 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:07:36,493 autoreload 18068 20652 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 03:07:37,039 autoreload 14692 5348 Watching for file changes with StatReloader
+INFO 2025-05-19 03:07:39,725 autoreload 14692 5348 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 03:07:40,291 autoreload 17488 15576 Watching for file changes with StatReloader
+INFO 2025-05-19 03:07:47,448 autoreload 11728 5060 Watching for file changes with StatReloader
+INFO 2025-05-19 03:07:52,343 basehttp 11728 636 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:07:56,744 basehttp 11728 636 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:08:04,209 basehttp 11728 636 "POST / HTTP/1.1" 200 62
+WARNING 2025-05-19 03:08:04,278 log 11728 636 Not Found: /favicon.ico
+WARNING 2025-05-19 03:08:04,279 basehttp 11728 636 "GET /favicon.ico HTTP/1.1" 404 3979
+INFO 2025-05-19 03:09:24,176 autoreload 11728 5060 C:\Users\pesca\Desktop\CyBlack\CyBlack\core\logging_filters.py changed, reloading.
+INFO 2025-05-19 03:09:24,725 autoreload 20532 12788 Watching for file changes with StatReloader
+INFO 2025-05-19 03:09:26,385 autoreload 20532 12788 C:\Users\pesca\Desktop\CyBlack\CyBlack\core\logging_filters.py changed, reloading.
+INFO 2025-05-19 03:09:26,852 autoreload 17356 15080 Watching for file changes with StatReloader
+INFO 2025-05-19 03:09:31,667 autoreload 17356 15080 C:\Users\pesca\Desktop\CyBlack\CyBlack\core\logging_filters.py changed, reloading.
+INFO 2025-05-19 03:09:32,226 autoreload 1064 5564 Watching for file changes with StatReloader
+INFO 2025-05-19 03:09:33,876 autoreload 1064 5564 C:\Users\pesca\Desktop\CyBlack\CyBlack\core\logging_filters.py changed, reloading.
+INFO 2025-05-19 03:09:34,353 autoreload 21212 11268 Watching for file changes with StatReloader
+WARNING 2025-05-19 03:09:52,033 basehttp 21212 19240 "POST / HTTP/1.1" 403 2503
+INFO 2025-05-19 03:09:54,580 basehttp 21212 19240 "GET / HTTP/1.1" 302 0
+INFO 2025-05-19 03:09:54,613 basehttp 21212 19240 "GET /dashboard/admin/ HTTP/1.1" 200 26338
+INFO 2025-05-19 03:10:02,462 basehttp 21212 19240 "GET / HTTP/1.1" 302 0
+INFO 2025-05-19 03:10:02,485 basehttp 21212 19240 "GET /dashboard/admin/ HTTP/1.1" 200 26338
+INFO 2025-05-19 03:10:02,522 basehttp 21212 19240 "GET /static/js/xlsx.full.min.js HTTP/1.1" 304 0
+INFO 2025-05-19 03:10:17,332 basehttp 21212 19240 "GET /logout/ HTTP/1.1" 302 0
+INFO 2025-05-19 03:10:17,339 basehttp 21212 19240 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:10:20,776 basehttp 21212 19240 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:10:20,848 basehttp 21212 19240 "GET /static/css/styles.css HTTP/1.1" 200 4104
+INFO 2025-05-19 03:10:20,895 basehttp 21212 19240 "GET /static/img/favicon.png HTTP/1.1" 200 17136
+INFO 2025-05-19 03:11:56,668 autoreload 3056 4976 Watching for file changes with StatReloader
+INFO 2025-05-19 03:13:11,584 autoreload 3056 4976 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 03:13:12,161 autoreload 16732 16492 Watching for file changes with StatReloader
+INFO 2025-05-19 03:13:14,933 basehttp 16732 20148 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:13:22,626 autoreload 19928 8072 Watching for file changes with StatReloader
+INFO 2025-05-19 03:13:25,354 basehttp 19928 21132 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:13:25,413 basehttp 19928 21132 "GET /static/css/styles.css HTTP/1.1" 200 4104
+INFO 2025-05-19 03:13:25,426 basehttp 19928 21132 "GET /static/img/favicon.png HTTP/1.1" 200 17136
+INFO 2025-05-19 03:14:52,094 autoreload 19928 8072 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 03:14:52,684 autoreload 12852 14184 Watching for file changes with StatReloader
+INFO 2025-05-19 03:16:13,175 autoreload 12852 14184 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\urls.py changed, reloading.
+INFO 2025-05-19 03:16:13,701 autoreload 20992 12200 Watching for file changes with StatReloader
+INFO 2025-05-19 03:16:18,587 autoreload 21052 2940 Watching for file changes with StatReloader
+INFO 2025-05-19 03:16:21,339 basehttp 21052 5060 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:16:21,400 basehttp 21052 5060 "GET /static/css/styles.css HTTP/1.1" 200 4104
+INFO 2025-05-19 03:16:21,410 basehttp 21052 5060 "GET /static/img/favicon.png HTTP/1.1" 200 17136
+INFO 2025-05-19 03:16:48,339 autoreload 21052 2940 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 03:17:07,134 autoreload 20944 13112 Watching for file changes with StatReloader
+INFO 2025-05-19 03:17:08,379 basehttp 20944 18476 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:17:08,431 basehttp 20944 18476 "GET /static/css/styles.css HTTP/1.1" 200 4104
+INFO 2025-05-19 03:17:08,462 basehttp 20944 18476 "GET /static/img/bg-index.jpg HTTP/1.1" 200 5105834
+INFO 2025-05-19 03:17:08,482 basehttp 20944 18476 "GET /static/img/favicon.png HTTP/1.1" 200 17136
+INFO 2025-05-19 03:17:27,001 autoreload 20944 13112 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 03:17:27,561 autoreload 21120 15856 Watching for file changes with StatReloader
+INFO 2025-05-19 03:17:30,043 basehttp 21120 10480 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:17:35,864 basehttp 21120 10480 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:17:35,878 autoreload 21120 15856 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 03:17:36,534 autoreload 20552 11600 Watching for file changes with StatReloader
+INFO 2025-05-19 03:17:37,900 basehttp 20552 12928 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:19:31,029 autoreload 20552 11600 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 03:19:31,643 autoreload 20992 1332 Watching for file changes with StatReloader
+INFO 2025-05-19 03:19:32,935 basehttp 20992 20448 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:19:32,998 basehttp 20992 20448 "GET /static/css/styles.css HTTP/1.1" 200 4104
+INFO 2025-05-19 03:19:33,025 basehttp 20992 20448 "GET /static/img/bg-index.jpg HTTP/1.1" 200 5105834
+INFO 2025-05-19 03:19:33,104 basehttp 20992 20448 "GET /static/img/favicon.png HTTP/1.1" 200 17136
+INFO 2025-05-19 03:19:40,019 basehttp 20992 20448 "POST / HTTP/1.1" 200 62
+INFO 2025-05-19 03:19:41,557 basehttp 20992 20448 "GET / HTTP/1.1" 302 0
+INFO 2025-05-19 03:19:41,592 basehttp 20992 20448 "GET /dashboard/admin/ HTTP/1.1" 200 26338
+INFO 2025-05-19 03:20:12,385 basehttp 20992 20448 "GET /logout/ HTTP/1.1" 302 0
+INFO 2025-05-19 03:20:12,390 basehttp 20992 20448 "GET / HTTP/1.1" 200 11109
+WARNING 2025-05-19 03:20:26,935 log 20992 20448 Unauthorized: /
+WARNING 2025-05-19 03:20:26,937 basehttp 20992 20448 "POST / HTTP/1.1" 401 81
+INFO 2025-05-19 03:20:33,113 basehttp 20992 20448 "POST / HTTP/1.1" 200 62
+INFO 2025-05-19 03:20:34,659 basehttp 20992 20448 "GET / HTTP/1.1" 302 0
+INFO 2025-05-19 03:20:34,687 basehttp 20992 20448 "GET /dashboard/entidad/ HTTP/1.1" 200 24348
+INFO 2025-05-19 03:20:43,777 basehttp 20992 20448 "GET /logout/ HTTP/1.1" 302 0
+INFO 2025-05-19 03:20:43,783 basehttp 20992 20448 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:20:48,430 autoreload 20992 1332 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 03:20:49,001 autoreload 12824 5348 Watching for file changes with StatReloader
+INFO 2025-05-19 03:20:56,064 basehttp 12824 17680 "POST / HTTP/1.1" 200 62
+INFO 2025-05-19 03:20:57,610 basehttp 12824 17680 "GET / HTTP/1.1" 302 0
+INFO 2025-05-19 03:20:57,645 basehttp 12824 17680 "GET /dashboard/admin/ HTTP/1.1" 200 26338
+INFO 2025-05-19 03:21:03,045 autoreload 12824 5348 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 03:21:03,626 autoreload 19860 20940 Watching for file changes with StatReloader
+INFO 2025-05-19 03:21:09,535 autoreload 14856 5372 Watching for file changes with StatReloader
+INFO 2025-05-19 03:21:27,458 basehttp 14856 7944 "GET /logout/ HTTP/1.1" 302 0
+INFO 2025-05-19 03:21:27,467 basehttp 14856 7944 "GET / HTTP/1.1" 200 11109
+INFO 2025-05-19 03:21:32,160 basehttp 14856 7944 "POST / HTTP/1.1" 200 62
+INFO 2025-05-19 03:21:33,705 basehttp 14856 7944 "GET / HTTP/1.1" 302 0
+INFO 2025-05-19 03:21:33,739 basehttp 14856 7944 "GET /dashboard/admin/ HTTP/1.1" 200 26338
+INFO 2025-05-19 03:21:44,821 autoreload 3716 5500 Watching for file changes with StatReloader
+INFO 2025-05-19 03:23:27,971 autoreload 6528 4524 Watching for file changes with StatReloader
+INFO 2025-05-19 03:44:46,618 autoreload 3000 13716 Watching for file changes with StatReloader
+INFO 2025-05-19 03:44:50,040 basehttp 3000 7844 "GET /dashboard/admin/ HTTP/1.1" 200 26338
+INFO 2025-05-19 03:44:50,074 basehttp 3000 7844 "GET /static/js/xlsx.full.min.js HTTP/1.1" 304 0
+INFO 2025-05-19 03:51:12,927 autoreload 3000 13716 C:\Users\pesca\Desktop\CyBlack\CyBlack\core\apps.py changed, reloading.
+INFO 2025-05-19 03:51:13,481 autoreload 3568 17540 Watching for file changes with StatReloader
+WARNING 2025-05-19 03:59:53,529 log 19792 3064 Unauthorized: /
+ERROR 2025-05-19 04:00:13,732 log 19792 3064 Internal Server Error: /
+ERROR 2025-05-19 04:01:53,996 log 564 6152 Internal Server Error: /
+ERROR 2025-05-19 04:02:56,449 log 564 6152 Internal Server Error: /
+INFO 2025-05-19 04:03:25,678 autoreload 19460 11444 Watching for file changes with StatReloader
+WARNING 2025-05-19 04:03:28,074 basehttp 19460 1508 "POST / HTTP/1.1" 403 2503
+INFO 2025-05-19 04:03:54,454 autoreload 19460 11444 C:\Users\pesca\Desktop\CyBlack\CyBlack\Index\views.py changed, reloading.
+INFO 2025-05-19 04:03:54,958 autoreload 8004 5400 Watching for file changes with StatReloader
+INFO 2025-05-19 04:04:01,622 autoreload 8004 5400 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 04:04:02,185 autoreload 21048 20180 Watching for file changes with StatReloader
+INFO 2025-05-19 04:04:12,062 autoreload 21048 20180 C:\Users\pesca\Desktop\CyBlack\CyBlack\Index\views.py changed, reloading.
+INFO 2025-05-19 04:04:12,642 autoreload 21004 16404 Watching for file changes with StatReloader
+WARNING 2025-05-19 04:04:16,712 basehttp 21004 12572 "POST / HTTP/1.1" 403 2503
+INFO 2025-05-19 04:04:44,406 autoreload 21004 16404 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.

@@ -1,0 +1,279 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyBlack - Sistema centralizado para el almacenamiento de direcciones URL maliciosas</title>
+    <meta name="description" content="CyBlack - Centralized Malicious URL Storage Platform" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        /* Background styles */
+        .background {
+            position: absolute;
+            inset: 0;
+            background-image: url('{% static "img/bg-index.jpg" %}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        /* Forgot password link */
+        .forgot-password {
+            display: block;
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            transition: color 0.3s ease;
+        }
+        .forgot-password:hover {
+            color: #3b82f6;
+            text-decoration: underline;
+        }
+        /* Resend button & countdown */
+        .resend-container {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        #resendBtn {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        #resendBtn:disabled {
+            color: #9ca3af;
+            cursor: default;
+        }
+    </style>
+    <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <!-- Background -->
+        <div class="background">
+            <div class="overlay"></div>
+            <div class="cyber-grid"></div>
+        </div>
+
+        <!-- Login Container -->
+        <div class="login-container">
+            <!-- Logo -->
+            <div class="logo-section">
+                <div class="logo-wrapper">
+                    <!-- SVGs... -->
+                </div>
+                <h1>CyBlack</h1>
+                <p>Sistema centralizado para el almacenamiento de direcciones URL maliciosas.</p>
+            </div>
+
+            <!-- Confirmación de código -->
+            <form id="loginForm" action="{% url 'recuperar_clave' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="opc" value="verifyCode">
+                <input type="hidden" name="username" value="{{ user.username }}">
+                <div class="input-group">
+                    <!-- Icon + input -->
+                    <input name="codigo" type="text" placeholder="Inserte código de confirmación" required>
+                </div>
+                <button type="submit" id="submitBtn">
+                    <span>Confirmar</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+
+            <!-- Reenviar código -->
+            <div class="resend-container">
+                <form id="resendForm" action="{% url 'recuperar_clave' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="opc" value="username">
+                    <input type="hidden" name="username" value="{{ user.username }}">
+                    <button type="submit" id="resendBtn" disabled>
+                        Reenviar código (<span id="countdown">30</span>s)
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const resendBtn  = document.getElementById('resendBtn');
+        const countdownEl = document.getElementById('countdown');
+        
+        let remaining = 30;
+        {% if Error or Success %}
+            // Inicio del contador regresivo
+            const timer = setInterval(() => {
+                remaining--;
+                countdownEl.textContent = remaining;
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    resendBtn.disabled = false;
+                    resendBtn.innerHTML = 'Reenviar código';
+                }
+            }, 1000);
+        {% else %}    
+            clearInterval(timer);
+            resendBtn.disabled = false;
+            resendBtn.innerHTML = 'Reenviar código';
+        {% endif %}
+            
+        
+        
+
+
+        // Al reenviar, volver a deshabilitar y reiniciar contador
+        document.getElementById('resendForm').addEventListener('submit', (e) => {
+            // Dejar que el form se envíe al servidor; luego:
+            resendBtn.disabled = true;
+            remaining = 30;
+            countdownEl.textContent = remaining;
+            resendBtn.innerHTML = `Reenviar código (<span id="countdown">${remaining}</span>s)`;
+
+            // Reiniciar el timer
+            const newTimer = setInterval(() => {
+                remaining--;
+                document.getElementById('countdown').textContent = remaining;
+                if (remaining <= 0) {
+                    clearInterval(newTimer);
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = 'Reenviar código';
+                }
+            }, 1000);
+        });
+
+
+
+        // Función para mostrar notificaciones
+        function showNotification(message, isSuccess = false) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${isSuccess ? 'success' : 'error'}`;
+            
+            // Icono SVG (éxito o error)
+            const icon = isSuccess ? `
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+            ` : `
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+            `;
+            
+            notification.innerHTML = `
+                ${icon}
+                <span class="message">${message}</span>
+                <span class="close-btn">&times;</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animación de entrada
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateY(0)';
+            }, 10);
+            
+            // Auto-eliminar después de 5 segundos
+            const autoRemove = setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+            
+            // Cerrar al hacer click
+            notification.querySelector('.close-btn').addEventListener('click', () => {
+                clearTimeout(autoRemove);
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            });
+        }
+
+        // Añadir estilos dinámicamente
+        const style = document.createElement('style');
+        style.textContent = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                opacity: 0;
+                transform: translateY(-30px);
+                transition: all 0.3s ease-out;
+                backdrop-filter: blur(4px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                max-width: 320px;
+                color: white;
+            }
+            
+            .error {
+                background-color: rgba(239, 68, 68, 0.9);
+            }
+            
+            .success {
+                background-color: rgba(34, 197, 94, 0.9);
+            }
+            
+            .icon {
+                width: 24px;
+                height: 24px;
+                flex-shrink: 0;
+            }
+            
+            .message {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 1.4;
+                flex-grow: 1;
+            }
+            
+            .close-btn {
+                font-size: 18px;
+                cursor: pointer;
+                margin-left: 8px;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+            }
+            
+            .close-btn:hover {
+                opacity: 1;
+            }
+            
+            .notification:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Mostrar notificación de error si existe
+        {% if Error %}
+            showNotification('{{ Error|escapejs }}');
+        {% endif %}
+        {% if Success %}
+            showNotification('{{ Success|escapejs }}',true);
+        {% endif %}
+
+
+        // Spinner y texto en envío de confirmación
+        loginForm.addEventListener('submit', () => {
+            submitBtn.classList.add('loading');
+            submitBtn.querySelector('span').textContent = 'Enviando...';
+            submitBtn.disabled = true;
+        });
+    });
+    </script>
+</body>
+</html>

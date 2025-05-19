@@ -1,0 +1,7 @@
+INFO 2025-05-19 01:28:04,440 autoreload 16220 9664 Watching for file changes with StatReloader
+INFO 2025-05-19 01:28:22,998 autoreload 16220 9664 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.
+INFO 2025-05-19 01:28:23,476 autoreload 20964 336 Watching for file changes with StatReloader
+INFO 2025-05-19 01:28:36,955 basehttp 20964 19124 "GET /redirect/ HTTP/1.1" 302 0
+INFO 2025-05-19 01:28:36,990 basehttp 20964 19124 "GET /dashboard/entidad/ HTTP/1.1" 200 24348
+INFO 2025-05-19 01:28:37,019 basehttp 20964 19124 "GET /static/js/xlsx.full.min.js HTTP/1.1" 304 0
+INFO 2025-05-19 02:08:06,029 autoreload 20964 336 C:\Users\pesca\Desktop\CyBlack\CyBlack\CyBlack\settings.py changed, reloading.

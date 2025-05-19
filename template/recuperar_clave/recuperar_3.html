@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyBlack - Sistema centralizado para el almacenamiento de direcciones URL maliciosas</title>
+    <meta name="description" content="CyBlack - Centralized Malicious URL Storage Platform" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        /* Background styles */
+        .background {
+            position: absolute;
+            inset: 0;
+            background-image: url('{% static "img/bg-index.jpg" %}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        /* Forgot password link */
+        .forgot-password {
+            display: block;
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            transition: color 0.3s ease;
+        }
+        .forgot-password:hover {
+            color: #3b82f6;
+            text-decoration: underline;
+        }
+    </style>
+    <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <!-- Background with overlay -->
+        <div class="background">
+            <div class="overlay"></div>
+            <div class="cyber-grid"></div>
+        </div>
+
+        <!-- Change Password Container -->
+        <div class="login-container">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="logo-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </div>
+                <h1>CyBlack</h1>
+                <p>Sistema centralizado para el almacenamiento de direcciones URL maliciosas.</p>
+            </div>
+
+            <!-- Change Password Form -->
+            <form id="loginForm" action="{% url 'recuperar_clave' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="opc" value="cambiar_contraseña">
+                <input type="hidden" name="username" value="{{ user.username }}">
+                <input type="hidden" name="codigo" value="{{ user.tocken_mail }}">
+                <div class="input-group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <input name="pass1" type="password" placeholder="Inserte su nueva contraseña." required>
+                </div>
+                <div class="input-group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <input name="pass2" type="password" placeholder="Confirme su nueva contraseña." required>
+                </div>
+                <button type="submit" id="submitBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <span>Aceptar</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const buttonText = submitBtn.querySelector('span');
+        const pass1 = form.querySelector('input[name="pass1"]');
+        const pass2 = form.querySelector('input[name="pass2"]');
+
+        // Comprueba si la contraseña cumple criterios de seguridad
+        function isPasswordSecure(pwd) {
+            // Mínimo 8 chars, 1 mayúscula, 1 minúscula, 1 número, 1 especial
+            const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+            return re.test(pwd);
+        }
+
+        // Muestra notificaciones de éxito/error
+        function showNotification(msg, isSuccess = false) {
+            const n = document.createElement('div');
+            n.className = `notification ${isSuccess ? 'success' : 'error'}`;
+            n.innerHTML = isSuccess
+                ? `<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`
+                : `<svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`;
+            n.innerHTML += `<span class="message">${msg}</span><span class="close-btn">&times;</span>`;
+            document.body.appendChild(n);
+            setTimeout(() => { n.style.opacity = '1'; n.style.transform = 'translateY(0)'; }, 10);
+            const remove = setTimeout(() => { n.style.opacity = '0'; setTimeout(() => n.remove(), 300); }, 5000);
+            n.querySelector('.close-btn').onclick = () => { clearTimeout(remove); n.remove(); };
+        }
+
+        // Inyecta estilos de notificación
+        const style = document.createElement('style');
+        style.textContent = `
+            .notification { position: fixed; top:20px; right:20px; display:flex; align-items:center; gap:12px;
+                padding:16px 24px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15);
+                opacity:0; transform:translateY(-30px); transition:all .3s ease-out; backdrop-filter:blur(4px);
+                border:1px solid rgba(255,255,255,.1); color:white; max-width:320px; z-index:1000;
+            }
+            .notification.error { background: rgba(239,68,68,0.9); }
+            .notification.success { background: rgba(34,197,94,0.9); }
+            .notification .icon { width:24px; height:24px; flex-shrink:0; }
+            .notification .message { font-size:14px; font-weight:500; line-height:1.4; flex-grow:1; }
+            .notification .close-btn { margin-left:8px; cursor:pointer; opacity:.7; transition:opacity .2s; }
+            .notification .close-btn:hover { opacity:1; }
+        `;
+        document.head.appendChild(style);
+
+        // Muestra mensajes que envía Django
+        {% if Error %}
+            showNotification('{{ Error|escapejs }}');
+        {% endif %}
+        {% if Success %}
+            showNotification('{{ Success|escapejs }}', true);
+        {% endif %}
+
+        // Validación antes del submit
+        form.addEventListener('submit', e => {
+            const p1 = pass1.value.trim(), p2 = pass2.value.trim();
+            if (!isPasswordSecure(p1)) {
+                e.preventDefault();
+                showNotification("La contraseña debe tener ≥8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial.");
+                return;
+            }
+            if (p1 !== p2) {
+                e.preventDefault();
+                showNotification("Las contraseñas no coinciden.");
+                return;
+            }
+            // Muestra spinner y deshabilita botón
+            submitBtn.classList.add('loading');
+            buttonText.textContent = 'Enviando...';
+            submitBtn.disabled = true;
+        });
+    });
+    </script>
+</body>
+</html>

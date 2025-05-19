@@ -62,37 +62,26 @@
             </div>
 
             <!-- Login Form -->
-            <form id="loginForm" action="{% url 'login' %}" method="POST">
+            <form id="loginForm" action="{% url 'recuperar_clave' %}" method="POST">
                 {% csrf_token %}
+                <input type="hidden" name="opc" value="username">
                 <div class="input-group">
                     <svg xmlns="http://www.w3.org/2000/svg" class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
                     </svg>
-                    <input name="username" type="text" placeholder="Nombre de usuario" required>
+                    <input name="username" type="text" placeholder="Inserte su nombre de usuario" required>
                 </div>
-
-                <div class="input-group">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                    <input name="password" type="password" placeholder="Contraseña" required>
-                </div>
-
-                <a href="{% url 'recuperar_clave' %}" class="forgot-password">¿Olvidaste la contraseña?</a>
-
                 <button type="submit" id="submitBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     </svg>
-                    <span>Acceder al sistema</span>
+                    <span>Enviar solicitud</span>
                     <div class="spinner"></div>
                 </button>
             </form>
         </div>
     </div>
-    <!--<script src="{% static 'js/script.js' %}"></script>-->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('loginForm');
@@ -207,57 +196,20 @@
                 }
             `;
             document.head.appendChild(style);
-            
+
+            // Mostrar notificación de error si existe
             {% if Error %}
-                showNotification('{{Error}}')
+                showNotification('{{ Error|escapejs }}');
             {% endif %}
-            {% if Success %}
-                showNotification('{{Success}}',true)
-            {% endif %}
-            
-
-
 
             form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
+                //e.preventDefault();
                 // Estado de carga
                 submitBtn.classList.add('loading');
-                buttonText.textContent = 'Autenticando...';
+                buttonText.textContent = 'Enviando solicitud...';
                 submitBtn.disabled = true;
-
-                try {
-                    const formData = new FormData(form);
-                    const response = await fetch(form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        showNotification('¡Autenticación exitosa! Redirigiendo...', true);
-                        // Pequeño retraso para que se vea la notificación
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        showNotification(data.message || 'Error de autenticación');
-                    }
-                } catch (error) {
-                    showNotification('Error de conexión con el servidor');
-                    console.error('Error:', error);
-                } finally {
-                    submitBtn.classList.remove('loading');
-                    buttonText.textContent = originalText;
-                    submitBtn.disabled = false;
-                }
             });
         });
     </script>
-    
-        
 </body>
 </html>

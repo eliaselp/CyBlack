@@ -9,3 +9,7 @@ user-agents
 django-otp 
 pyotp 
 qrcode
+python-json-logger
+python-logstash
+sentry-sdk
+whitenoise
