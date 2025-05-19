@@ -26,14 +26,6 @@ import json
 from django.utils.timezone import now
 from django.db.models.functions import TruncMonth
 from dateutil.relativedelta import relativedelta
-
-class Admin_Dashboard(View):
-    from django.utils.timezone import now
-from django.db.models.functions import TruncMonth
-from django.db.models import Count
-from dateutil.relativedelta import relativedelta
-import json
-from django.utils.safestring import mark_safe
 import calendar
 
 class Admin_Dashboard(View):
@@ -1025,7 +1017,7 @@ Cyblack
 
 class Estadistica(View):
     def get(self,request):
-        pass
+        return Index_views.redirigir_usuario(request=request)
 
 
     def post(self, request):
@@ -1140,6 +1132,7 @@ class Estadistica(View):
                     'legal_impact_data': mark_safe(json.dumps(legal_impact_data)),
                     'detecciones_data': mark_safe(json.dumps(detecciones_data)),
                     'accesos_data': mark_safe(json.dumps(accesos_data)),
+                    'base':"dashboard/admin/base_admin.html" if request.user.is_staff else "dashboard/entidad/entidad_base.html"
                 })
             except Exception as e:
                 print(f"Error: {str(e)}")  # Para depuración

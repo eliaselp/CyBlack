@@ -25,6 +25,8 @@ class Ajustes(View):
             base = None
             if request.user.is_staff:
                 base = 'dashboard/admin/base_admin.html'
+            else:
+                base = 'dashboard/entidad/entidad_base.html'
             
             return render(request,'dashboard/Ajustes/ajustes.html',{
                 'Error':Error,'Success':Success,'back':back,
@@ -42,7 +44,8 @@ class Ajustes(View):
             base = None
             if request.user.is_staff:
                 base = 'dashboard/admin/base_admin.html'
-            
+            else:
+                base = 'dashboard/entidad/entidad_base.html'
             return render(request,'dashboard/Ajustes/ajustes.html',{
                 'sesiones':sesiones,'sesion_actual':request.session.session_key,
                 'mfa_activo':not request.user.secret_mfa in [None,''],
