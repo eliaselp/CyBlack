@@ -9,6 +9,11 @@ from django_user_agents.utils import get_user_agent
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 from MFA import views as MFA_views
+from django.contrib.auth.models import User
+from Administrador import models as Admin_models
+from . import utils, correo
+from django.views.decorators.csrf import csrf_exempt
+
 
 def redirigir_usuario(request):
     """Función centralizada para redirigir según el tipo de usuario"""
@@ -17,25 +22,30 @@ def redirigir_usuario(request):
     
     if request.user.is_staff:
         return redirect('admin_dashboard')
-    # Aquí puedes añadir más roles según necesites
-    # elif request.user.es_cliente:
-    #     return redirect('cliente_dashboard')
     else:
-        return redirect('dashboard_default')
+        return redirect('entidad_dashboard')
 
 class Login(View):
+    @staticmethod
+    def Notificacion(request,Error=None,Success=None):
+        if request.user.is_authenticated:
+            return redirigir_usuario(request)
+        return render(request, 'index.html',{
+            'Error':Error,'Success':Success
+        })
+    
     def get(self, request):
         if request.user.is_authenticated:
             return redirigir_usuario(request)
         return render(request, 'index.html')
 
+    @csrf_exempt
     def post(self, request):
         if request.user.is_authenticated:
             return redirigir_usuario(request)
             
         username = escape(request.POST.get('username'))
         password = escape(request.POST.get('password'))
-        
         if not username or not password:
             return JsonResponse({
                 'status': 'error',
@@ -83,7 +93,7 @@ class Login(View):
             
             return JsonResponse({
                 'status': 'error',
-                'message': 'Credenciales incorrectas'
+                'message': 'Nombre de usuario o contraseña incorrectas'
             }, status=401)
             
         except Exception as e:
@@ -138,3 +148,89 @@ class MFA(View):
                 return MFA.Notificacion(request=request,Error='Codigo incorrecto')
         else:
             return redirigir_usuario(request)
+        
+
+
+
+class Recuperar_clave(View):
+    @staticmethod
+    def Notificacion(request:HttpRequest,step=1,Error=None,Success=None,user=None):
+        if request.user.is_authenticated:
+            return redirigir_usuario()
+        return render(request,f'recuperar_clave/recuperar_{step}.html',{
+            'Error':Error,'Success':Success,'user':user
+        })
+    
+
+    def get(self, request:HttpRequest):
+        if request.user.is_authenticated:
+            return redirigir_usuario()
+        return Recuperar_clave.Notificacion(request=request,step=1)
+
+
+    def post(self, request:HttpRequest):
+        if request.user.is_authenticated:
+            return redirigir_usuario()
+        
+        opc = request.POST.get('opc')
+        username=request.POST.get('username')
+        user = User.objects.filter(username=username)
+        if user.exists():
+            user = user.first()
+        else:
+            return Recuperar_clave.Notificacion(request=request,step=1,Error="El usuario no existe.")
+        
+        if opc == "username":    
+            email = None
+            nombre = None
+            if user.is_staff:
+                email = user.email
+                nombre = user.username
+            else:
+                entidad = Admin_models.Entidad.objects.get(userid=user)
+                email = entidad.email_responsable
+                nombre = entidad.nombre_responsable
+
+
+            tocken = utils.generar_codigo_verificacion()
+            user.tocken_mail = tocken
+            user.save()
+            Asunto = "Código de verificación para cambio de contraseña"
+            Mensaje = f"""
+Hola {nombre}:
+
+Hemos recibido una solicitud para cambiar la contraseña de tu cuenta.
+
+Para continuar con el proceso, por favor ingresa el siguiente código de verificación en la página correspondiente:
+
+🔐 Código de verificación: {tocken}
+
+Si no solicitaste este cambio, ignora este mensaje o contacta con nuestro equipo de soporte inmediatamente.
+
+Gracias por usar nuestro servicio.
+Saludos, CyBlack
+"""
+            
+            correo.enviar_correo(email=email,Asunto=Asunto,s=Mensaje)
+            return Recuperar_clave.Notificacion(request=request,step=2,Success="Código enviado correctamente. Revise su correo electrónico.",user=user)
+        elif opc in ["verifyCode","cambiar_contraseña"]:
+            code = request.POST.get('codigo')
+            if user.tocken_mail == code:
+                if opc == "verifyCode": 
+                    return Recuperar_clave.Notificacion(request=request,step=3,Success="Código confirmado. Inserte su nueva contraseña.",user=user)
+                elif opc == "cambiar_contraseña":
+                    pass1 = request.POST.get('pass1')                    
+                    pass2 = request.POST.get('pass2')
+                    valid = utils.validar_contraseñas(pass1=pass1,pass2=pass2)
+                    if valid == 'OK':
+                        user.set_password(pass1)
+                        user.save()
+                        return Login.Notificacion(request=request,Success="Contraseña actualizada correctamente.")
+                    else:
+                        return Recuperar_clave.Notificacion(request=request,step=3,Error=valid,user=user)    
+            else:
+                return Recuperar_clave.Notificacion(request=request,step=2,Error="Código incorrecto.",user=user)
+        
+
+
+            

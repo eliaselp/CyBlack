@@ -43,10 +43,13 @@ INSTALLED_APPS = [
     'Lista_negra',
     'Ajustes',
     'MFA',
+    'Entidad',
+    #'core',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -56,6 +59,11 @@ MIDDLEWARE = [
     'django_session_timeout.middleware.SessionTimeoutMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
     'Index.middleware.AuthAndMFAMiddleware',
+    #'Index.middleware.UserActionLoggingMiddleware',
+
+    #'core.middleware.audit_middleware.AuditMiddleware',
+    #'core.middleware.security_headers.SecurityHeadersMiddleware',
+    #'core.middleware.context_local_middleware.ContextLocalMiddleware',
 ]
 
 ROOT_URLCONF = 'CyBlack.urls'
@@ -127,9 +135,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static',]
 STATIC_ROOT = BASE_DIR / 'colectstatics'
+STATIC_URL = '/static/'
+# Habilita la compresión y almacenamiento eficiente
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
 
 # settings.py
 
@@ -161,7 +173,147 @@ USE_TZ = True
 
 
 
+#############################################################################
+########## CONFIGURACION DE GESTION DE LOGS ###################################
+#############################################################################
+"""
+import os
+import platform
+from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
+
+# Directorio de logs
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR, mode=0o750)
+
+# Detectar sistema operativo para syslog
+IS_WINDOWS = platform.system() == 'Windows'
 
 
-#DEBUG = False  # Aumenta el rendimiento al evitar la carga de plantillas de depuración
-LOGGING = {}   # O reduce la verbosidad
+handlers = {
+    'console': {
+        'level': 'DEBUG',
+        'filters': ['require_debug_true'],
+        'class': 'logging.StreamHandler',
+        'formatter': 'verbose'
+    },
+    'file_app': {
+        'level': 'INFO',
+        'class': 'logging.handlers.RotatingFileHandler',
+        'filename': os.path.join(LOG_DIR, 'application.log'),
+        'maxBytes': 1024 * 1024 * 50,
+        'backupCount': 10,
+        'formatter': 'verbose',
+        'delay': True,
+    },
+    'file_security': {
+        'level': 'INFO',
+        'class': 'logging.handlers.TimedRotatingFileHandler',
+        'filename': os.path.join(LOG_DIR, 'security.log'),
+        'when': 'midnight',
+        'backupCount': 30,
+        'formatter': 'security',
+        'filters': ['user_context'],  # ✅ filtro añadido
+        'delay': True,
+    },
+    'logstash': {
+        'level': 'INFO',
+        'class': 'logstash.TCPLogstashHandler',
+        'host': 'logstash.example.com',
+        'port': 5959,
+        'version': 1,
+        'message_type': 'django',
+        'fqdn': False,
+        'tags': ['django', 'production'],
+        'filters': ['user_context'],  # ✅ filtro añadido
+    },
+    'sentry': {
+        'level': 'ERROR',
+        'class': 'sentry_sdk.integrations.logging.EventHandler',
+        'formatter': 'json',
+        'filters': ['user_context'],  # ✅ filtro añadido
+    },
+}
+
+# Solo agregar syslog si NO es Windows
+if not IS_WINDOWS:
+    handlers['syslog'] = {
+        'level': 'WARNING',
+        'class': 'logging.handlers.SysLogHandler',
+        'address': '/dev/log',
+        'facility': 'local7',
+        'formatter': 'verbose'
+    }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'user_context': {
+            '()': 'core.logging_filters.UserContextFilter',
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'json': {
+            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+            'format': '''
+                {
+                    "timestamp": "%(asctime)s",
+                    "level": "%(levelname)s",
+                    "service": "django",
+                    "host": "%(hostname)s",
+                    "module": "%(module)s",
+                    "function": "%(funcName)s",
+                    "line": "%(lineno)d",
+                    "message": "%(message)s",
+                    "user": "%(user)s",
+                    "ip": "%(ip)s",
+                    "request_id": "%(request_id)s",
+                    "session_id": "%(session_id)s"
+                }
+            '''
+        },
+        'security': {
+            'format': '%(asctime)s | SECURITY | %(levelname)s | %(user)s | %(ip)s | %(action)s | %(message)s | Context: %(context)s'
+        },
+    },
+    'handlers': handlers,
+    'loggers': {
+        '': {
+            # Evitar usar syslog si no está definido (Windows)
+            'handlers': ['console', 'file_app'] + (['syslog'] if 'syslog' in handlers else []),
+            'level': 'INFO',
+        },
+        'django': {
+            'handlers': ['console', 'file_app'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['file_security', 'logstash'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'audit': {
+            # Agregar syslog solo si está disponible
+            'handlers': ['file_security', 'logstash'] + (['syslog'] if 'syslog' in handlers else []),
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'security': {
+            'handlers': ['file_security', 'logstash'] + (['syslog'] if 'syslog' in handlers else []) + ['sentry'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    }
+}
+"""

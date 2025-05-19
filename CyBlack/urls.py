@@ -8,5 +8,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('',include('Index.urls')),
     path('dashboard/admin/',include('Administrador.urls')), 
+    path('dashboard/entidad/',include('Entidad.urls')),
     path('api/',include('Api.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
