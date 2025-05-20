@@ -20,3 +20,10 @@ class Credencial(models.Model):
 
 
 
+from auditlog.registry import auditlog
+
+# Registra el modelo para auditoría
+auditlog.register(Credencial)
+auditlog.register(User)
+
+

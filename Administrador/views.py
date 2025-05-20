@@ -7,11 +7,10 @@ from Api import models as Api_models
 from Api import utils
 from Index import views as Index_views
 from Index import correo
+
 from django.http import HttpRequest
 import re
-import uuid
 import secrets
-import string
 import random
 from django.utils import timezone
 from Lista_negra import models as Lista_Negra_models
@@ -26,7 +25,6 @@ import json
 from django.utils.timezone import now
 from django.db.models.functions import TruncMonth
 from dateutil.relativedelta import relativedelta
-import calendar
 
 class Admin_Dashboard(View):
     def get(self, request):

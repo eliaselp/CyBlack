@@ -26,3 +26,8 @@ class Entidad(models.Model):
     
 
 
+
+from auditlog.registry import auditlog
+
+# Registra el modelo para auditoría
+auditlog.register(Entidad)
