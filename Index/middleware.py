@@ -33,61 +33,75 @@ class AuthAndMFAMiddleware:
             return redirect('mfa')
 
         return self.get_response(request)
-    
 
 
 
 
-# middleware/logging_middleware.py
+
+# middleware/audit_middleware.py
+import structlog
+from django.utils.deprecation import MiddlewareMixin
+
+logger = structlog.get_logger("audit")
+
+class AuditContextMiddleware(MiddlewareMixin):
+    def process_request(self, request):
+        structlog.contextvars.bind_contextvars(
+            user_id=getattr(request.user, 'id', None),
+            user_ip=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT'),
+            request_path=request.path,
+        )
+
+
+
+
+
+
+
+
+
+
+# Index/middleware.py
+from request_logging.middleware import LoggingMiddleware
+import json
 import logging
-from django.utils import timezone
 
-logger = logging.getLogger('security')
-error_logger = logging.getLogger('critical')
-
-class UserActionLoggingMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        response = self.get_response(request)
+class FixedLoggingMiddleware(LoggingMiddleware):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Configuramos un logger estándar
+        self.std_logger = logging.getLogger('django.request')
         
-        # Registrar información básica de la solicitud
-        if request.user.is_authenticated:
-            user_info = {
-                'user': request.user.username,
-                'ip': self.get_client_ip(request),
-                'action': request.method + ' ' + request.path,
-                'extra': {
-                    'user_agent': request.META.get('HTTP_USER_AGENT', ''),
-                    'status_code': response.status_code,
-                }
+    def _get_content(self, response):
+        """Obtiene el contenido de forma segura"""
+        try:
+            if hasattr(response, 'content'):
+                content = response.content
+                if isinstance(content, bytes):
+                    return content.decode('utf-8', errors='replace')
+                return content
+            return None
+        except Exception as e:
+            self.std_logger.warning(f"Error getting content: {str(e)}")
+            return None
+
+    def _log_resp(self, level, response, logging_context):
+        """Versión completamente compatible"""
+        try:
+            # Preparamos el mensaje de log
+            log_msg = {
+                'status': response.status_code,
+                'headers': dict(response.items()) if hasattr(response, 'items') else {},
+                'content': self._get_content(response),
+                **logging_context
             }
             
-            logger.info(
-                'Acceso de usuario', 
-                extra=user_info
-            )
+            # Formateamos como string para evitar problemas con el logger
+            log_str = "\n".join([f"{k}: {v}" for k, v in log_msg.items()])
             
-            # Registrar acciones específicas como POST a URLs críticas
-            if request.method == 'POST' and any(
-                path in request.path for path in ['/admin/', '/settings/', '/delete/']
-            ):
-                logger.warning(
-                    'Acción crítica realizada', 
-                    extra={
-                        **user_info,
-                        'action': f'CRITICAL ACTION: {request.method} {request.path}',
-                        'data': str(getattr(request, request.method, {}))
-                    }
-                )
-        
-        return response
-
-    def get_client_ip(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        return ip
+            # Usamos el logger estándar que sí soporta estos parámetros
+            self.std_logger.log(level, log_str)
+            
+        except Exception as e:
+            self.std_logger.error(f"Logging error: {str(e)}", exc_info=True)

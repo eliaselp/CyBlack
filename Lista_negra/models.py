@@ -163,3 +163,17 @@ from django.dispatch import receiver
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     if instance.archivo:
         instance.archivo.delete(save=False)
+
+
+
+
+
+
+
+from auditlog.registry import auditlog
+
+# Registra el modelo para auditoría
+auditlog.register(URL_Maliciosa)
+auditlog.register(Evidencia)
+auditlog.register(Acceso_Allowed)
+auditlog.register(Acceso_Denegado)
