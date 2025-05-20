@@ -1,4 +1,4 @@
-django
+django==5.1.7
 django_session_timeout
 cryptography
 eciespy
@@ -13,3 +13,11 @@ python-json-logger
 python-logstash
 sentry-sdk
 whitenoise
+crum 
+elasticsearch==7.17.9
+python-json-logger
+structlog==23.1.0
+django-structlog==4.0.0
+django-auditlog
+django-request-logging==0.7.0
+unicorn==0.29.0

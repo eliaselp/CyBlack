@@ -1,0 +1,97 @@
+version: 1
+disable_existing_loggers: False
+
+formatters:
+  json:
+    (): structlog.stdlib.ProcessorFormatter
+    processor: structlog.processors.JSONRenderer
+    foreign_pre_chain: []
+    
+  console_color:
+    (): structlog.stdlib.ProcessorFormatter
+    processor:
+      (): structlog.dev.ConsoleRenderer
+      colors: true
+      force_colors: true
+      level_styles:
+        critical: bold_red
+        error: red
+        warning: yellow
+        info: green
+        debug: white
+    foreign_pre_chain: []
+
+handlers:
+  security_file:
+    class: logging.handlers.RotatingFileHandler
+    filename: logs/security.log
+    formatter: json
+    maxBytes: 10485760  # 10 MB
+    backupCount: 5
+    encoding: utf8
+    delay: true
+
+  audit_file:
+    class: logging.handlers.RotatingFileHandler
+    filename: logs/audit.log
+    formatter: json
+    maxBytes: 10485760
+    backupCount: 5
+    encoding: utf8
+    delay: true
+
+  errors_file:
+    class: logging.handlers.RotatingFileHandler
+    filename: logs/errors.log
+    formatter: json
+    maxBytes: 10485760
+    backupCount: 5
+    level: ERROR
+    encoding: utf8
+    delay: true
+
+  console:
+    class: logging.StreamHandler
+    formatter: console_color
+    stream: ext://sys.stdout
+    level: DEBUG
+
+loggers:
+  django:
+    handlers: [console]
+    level: INFO
+    propagate: False
+
+  django.request:
+    handlers: [console, errors_file]
+    level: INFO
+    propagate: False
+
+  django.security:
+    handlers: [security_file, console]
+    level: WARNING
+    propagate: False
+
+  django.db.backends:
+    handlers: [console]
+    level: WARNING
+    propagate: False
+
+  security:
+    handlers: [security_file, console]
+    level: INFO
+    propagate: False
+
+  audit:
+    handlers: [audit_file, console]
+    level: INFO
+    propagate: False
+
+  auditlog:
+    handlers: [audit_file, console]
+    level: INFO
+    propagate: False
+
+root:
+  handlers: [console]
+  level: WARNING
